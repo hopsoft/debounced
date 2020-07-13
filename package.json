@@ -1,7 +1,7 @@
 {
-  "name": "debounced-events",
-  "version": "0.0.2",
-  "description": "Debounced standard DOM events",
+  "name": "debounced",
+  "version": "0.0.0",
+  "description": "Debounced versions of standard high frequency DOM events",
   "main": "src/index.js",
   "repository": "https://github.com/hopsoft/debounced-events",
   "author": "Nate Hopkins",
