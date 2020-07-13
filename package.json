@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Debounced versions of standard high frequency DOM events",
   "main": "src/index.js",
-  "repository": "https://github.com/hopsoft/debounced-events",
+  "repository": "https://github.com/hopsoft/debounced",
   "author": "Nate Hopkins",
   "license": "MIT",
   "private": false,
