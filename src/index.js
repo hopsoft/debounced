@@ -2,7 +2,8 @@ import events from './events'
 
 const initialized = {}
 
-const debounce = (callback, wait = 250) => {
+const debounce = (callback, options = {}) => {
+  const { wait } = options
   let timeoutId
   return (...args) => {
     clearTimeout(timeoutId)
@@ -24,12 +25,12 @@ const dispatch = event => {
   setTimeout(event.target.dispatchEvent(debouncedEvent))
 }
 
-const initializeEvent = (name, wait = 250) => {
+const initializeEvent = (name, options = {}) => {
   if (initialized[name]) return
   initialized[name] = true
-  const debouncedDispatch = debounce(dispatch, wait)
+  const debouncedDispatch = debounce(dispatch, options)
   document.addEventListener(name, event => debouncedDispatch(event))
 }
 
-for (const [name, meta] of Object.entries(events))
-  initializeEvent(name, meta.wait)
+for (const [name, options] of Object.entries(events))
+  initializeEvent(name, options)
