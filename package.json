@@ -1,0 +1,17 @@
+{
+  "name": "debounced-events",
+  "version": "0.0.1",
+  "description": "Debounced standard DOM events",
+  "main": "src/index.js",
+  "repository": "https://github.com/hopsoft/debounced-events",
+  "author": "Nate Hopkins",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "prettier-standard:check": "yarn run prettier-standard --check *.js **/*.js",
+    "prettier-standard:format": "yarn run prettier-standard *.js **/*.js"
+  },
+  "devDependencies": {
+    "prettier-standard": "^16.1.0"
+  }
+}
