@@ -7,7 +7,9 @@ to add debounced versions of standard [*bubbling*](https://developer.mozilla.org
 
 ## Why?
 
-Have you ever wired up event listeners for keyup, input, or mousemove?
+Have you ever wired up event listeners for [`keyup`](https://developer.mozilla.org/en-US/docs/Web/API/Document/keyup_event),
+[`input`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event), or
+[`mousemove`](https://developer.mozilla.org/en-US/docs/Web/API/Element/mousemove_event)?
 If so, you know that these events are dispatched frequently and
 often necessitate adding custom debounce functionality to your application.
 
