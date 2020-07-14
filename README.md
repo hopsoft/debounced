@@ -2,25 +2,28 @@
 
 ### Debounced versions of standard DOM events
 
-## Why
+## Why?
 
-Have you ever wired up event listeners to the keyup, input, or mousemove events.
+Have you ever wired up event listeners for keyup, input, or mousemove?
 If so, you know that these events are dispatched frequently and
-often necessitate adding debounce functionality in your application code.
+often necessitate adding custom debounce functionality to your application.
 **What if you could simply listen for a debounced event instead?**
 
-Well... now you can, and the technique pairs extremely well with libraries like
+Well... now you can.
+
+And the best part is that this technique pairs extremely well with libraries like
 [Stimulus](https://github.com/stimulusjs/stimulus) and [StimulusReflex](https://github.com/hopsoft/stimulus_reflex).
 
 ```erb
-<%= text_field_tag :example, data: { controller: "example", action: "debounced:input->example#work" } %>
-<%= text_field_tag :example, data: { reflex: "debounced:input->Example#work" } %>
+<%= text_field_tag :example,
+  data: { controller: "example", action: "debounced:input->example#work" } %>
+
+<%= text_field_tag :example,
+  data: { reflex: "debounced:input->Example#work" } %>
 ```
 
-## How
-
-This library uses [event delegation](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#Event_delegation)
-to add debounced versions of standard [*bubbling*](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles) DOM events.
+*This library uses [event delegation](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#Event_delegation)
+to add debounced versions of standard [*bubbling*](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles) DOM events.*
 
 ## Install
 
