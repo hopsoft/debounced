@@ -45,7 +45,7 @@ document.getElementById('example').addEventListener('debounced:keydown', event =
 
 ## Advanced Usage
 
-By default we set up debounced events for all DOM events that bubble,
+By default we set up debounced events for [all DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js),
 but you can also specify which events you'd like debounced.
 
 ```js
