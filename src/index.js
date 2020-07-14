@@ -1,6 +1,6 @@
 import events from './events'
 
-const initialized = {}
+const initializedEvents = {}
 
 const debounce = (callback, options = {}) => {
   const { wait } = options
@@ -26,11 +26,21 @@ const dispatch = event => {
 }
 
 const initializeEvent = (name, options = {}) => {
-  if (initialized[name]) return
-  initialized[name] = true
+  if (initializedEvents[name]) return
+  initializedEvents[name] = options || {}
   const debouncedDispatch = debounce(dispatch, options)
   document.addEventListener(name, event => debouncedDispatch(event))
 }
 
-for (const [name, options] of Object.entries(events))
-  initializeEvent(name, options)
+const initialize = (evts = events) => {
+  console.log('init debounce', evts)
+  for (const [name, options] of Object.entries(evts)) {
+    initializeEvent(name, options)
+  }
+}
+
+export default {
+  initialize,
+  initializeEvent,
+  initializedEvents
+}
