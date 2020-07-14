@@ -55,7 +55,7 @@ import debounced from 'debounced'
 debounced.initialize({ input: { wait: 100 } })
 ```
 
-You can customize `wait` times for the defaulit events.
+You can customize `wait` times for the default events.
 
 ```js
 import debounced from 'debounced'
