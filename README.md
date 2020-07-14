@@ -18,11 +18,8 @@ And the best part is that this technique pairs extremely well with libraries lik
 [Stimulus](https://github.com/stimulusjs/stimulus) and [StimulusReflex](https://github.com/hopsoft/stimulus_reflex).
 
 ```erb
-<%= text_field_tag :example,
-  data: { controller: "example", action: "debounced:input->example#work" } %>
-
-<%= text_field_tag :example,
-  data: { reflex: "debounced:input->Example#work" } %>
+<input type="text" data-controller="example" data-action="debounced:input->example#work">
+<input type="text" data-reflex="debounced:input->Example#work">
 ```
 
 ## Install
@@ -54,6 +51,13 @@ debounced.initialize({input: { wait: 100 }}) // debounce only the input event an
 document.addEventListener('debounced:input', event => { ... })
 ```
 
+You can customize the wait time of a single event.
+
+```js
+import debounced from 'debounced'
+debounced.initialize({...debounced.events, keyup: { wait: 100 }})
+```
+
 You can also debounce custom events.
 
 ```js
@@ -61,3 +65,9 @@ import debounced from 'debounced'
 debounced.initialize()
 debounced.initializeEvent('my-custom-event', { wait: 150 })
 ```
+
+## FAQ
+
+- What is the default `wait` time? **200ms**
+- Can I customize the `wait` time for an event type more than once? **No, the setting used to initialize the event is global.**
+- Does the debounced event run before or after the standard DOM event? **After**

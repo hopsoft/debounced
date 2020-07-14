@@ -40,6 +40,7 @@ const initialize = (evts = events) => {
 }
 
 export default {
+  events,
   initialize,
   initializeEvent,
   initializedEvents
