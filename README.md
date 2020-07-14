@@ -50,12 +50,14 @@ but you can also specify which events you'd like debounced.
 
 ```js
 import debounced from 'debounced'
+
 // debounce only the input event and wait 100ms before dispatching
 debounced.initialize({ input: { wait: 100 } })
+
 document.addEventListener('debounced:input', event => { ... })
 ```
 
-You can customize the wait time of a single event.
+You can customize `wait` times for events in the default set.
 
 ```js
 import debounced from 'debounced'
@@ -66,8 +68,13 @@ You can also debounce custom events.
 
 ```js
 import debounced from 'debounced'
-debounced.initialize()
-debounced.initializeEvent('my-custom-event', { wait: 150 })
+
+// initialize all default events and add some custom events
+debounced.initialize({ ...debounced.events, "custom-event": { wait: 150 } })
+
+
+// initialize a single custom event
+debounced.initializeEvent('another-custom-event', { wait: 150 })
 ```
 
 ## FAQ
