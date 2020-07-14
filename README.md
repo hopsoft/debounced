@@ -2,6 +2,9 @@
 
 ### Debounced versions of standard DOM events
 
+This library uses [event delegation](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#Event_delegation)
+to add debounced versions of standard [*bubbling*](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles) DOM events.
+
 ## Why?
 
 Have you ever wired up event listeners for keyup, input, or mousemove?
@@ -21,9 +24,6 @@ And the best part is that this technique pairs extremely well with libraries lik
 <%= text_field_tag :example,
   data: { reflex: "debounced:input->Example#work" } %>
 ```
-
-*This library uses [event delegation](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#Event_delegation)
-to add debounced versions of standard [*bubbling*](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles) DOM events.*
 
 ## Install
 
