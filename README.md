@@ -14,7 +14,7 @@ often necessitate adding custom debounce functionality to your application.
 **What if you could simply listen for a debounced event instead?**
 Well... now you can.
 
-And the best part is that this technique pairs extremely well with libraries like
+Also, this technique pairs extremely well with libraries like
 [Stimulus](https://github.com/stimulusjs/stimulus) and [StimulusReflex](https://github.com/hopsoft/stimulus_reflex).
 
 ```erb
@@ -68,6 +68,14 @@ debounced.initializeEvent('my-custom-event', { wait: 150 })
 
 ## FAQ
 
-- What is the default `wait` time? **200ms**
-- Can I customize the `wait` time for an event type more than once? **No, the setting used to initialize the event is global.**
-- Does the debounced event run before or after the standard DOM event? **After**
+- What is the default `wait` time?
+
+  **200ms**
+
+- Can I customize the `wait` time for an event type more than once?
+
+  **No, the setting used to initialize the event is global.**
+
+- Does the debounced event run before or after the standard DOM event?
+
+  **After**

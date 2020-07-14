@@ -1,7 +1,7 @@
 // All bubbling events
 // SEE: https://developer.mozilla.org/en-US/docs/Web/Events
 
-const wait = 250 // the number of milliseconds to wait
+const wait = 200 // the number of milliseconds to wait
 
 export default {
   DOMContentLoaded: { wait },
