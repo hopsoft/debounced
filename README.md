@@ -59,6 +59,8 @@ You can customize `wait` times for the defaulit events.
 
 ```js
 import debounced from 'debounced'
+
+// initalize default events but change the wait time for keyup
 debounced.initialize({ ...debounced.events, keyup: { wait: 100 } })
 ```
 
