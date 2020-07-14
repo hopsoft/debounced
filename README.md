@@ -10,8 +10,8 @@ to add debounced versions of standard [*bubbling*](https://developer.mozilla.org
 Have you ever wired up event listeners for keyup, input, or mousemove?
 If so, you know that these events are dispatched frequently and
 often necessitate adding custom debounce functionality to your application.
-**What if you could simply listen for a debounced event instead?**
 
+**What if you could simply listen for a debounced event instead?**
 Well... now you can.
 
 And the best part is that this technique pairs extremely well with libraries like
