@@ -1,30 +1,16 @@
-const events = [
-  'change',
-  'auxclick',
-  'click',
-  'contextmenu',
-  'dblclick',
-  'input',
-  'keydown',
-  'keyup',
-  'mousedown',
-  'mousemove',
-  'mouseout',
-  'mouseover',
-  'mouseup',
-  'select',
-  'wheel'
-]
-const initialized = {}
+import events from './events'
 
-const debounce = (callback, delay = 250) => {
+const initializedEvents = {}
+
+const debounce = (callback, options = {}) => {
+  const { wait } = options
   let timeoutId
   return (...args) => {
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => {
       timeoutId = null
       callback(...args)
-    }, delay)
+    }, wait)
   }
 }
 
@@ -39,11 +25,23 @@ const dispatch = event => {
   setTimeout(event.target.dispatchEvent(debouncedEvent))
 }
 
-const initializeEvent = (name, delay = 250) => {
-  if (initialized[name]) return
-  initialized[name] = true
-  const debouncedDispatch = debounce(dispatch, delay)
+const initializeEvent = (name, options = {}) => {
+  if (initializedEvents[name]) return
+  initializedEvents[name] = options || {}
+  const debouncedDispatch = debounce(dispatch, options)
   document.addEventListener(name, event => debouncedDispatch(event))
 }
 
-events.forEach(name => initializeEvent(name))
+const initialize = (evts = events) => {
+  console.log('init debounce', evts)
+  for (const [name, options] of Object.entries(evts)) {
+    initializeEvent(name, options)
+  }
+}
+
+export default {
+  events,
+  initialize,
+  initializeEvent,
+  initializedEvents
+}
