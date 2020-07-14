@@ -33,7 +33,6 @@ const initializeEvent = (name, options = {}) => {
 }
 
 const initialize = (evts = events) => {
-  console.log('init debounce', evts)
   for (const [name, options] of Object.entries(evts)) {
     initializeEvent(name, options)
   }
