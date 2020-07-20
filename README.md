@@ -77,6 +77,13 @@ debounced.initialize({ ...debounced.events, "custom-event": { wait: 150 } })
 debounced.initializeEvent('another-custom-event', { wait: 150 })
 ```
 
+You can even change the prefix of the debounced event names.
+
+```js
+debounced.initialize({ prefix: 'my-application', ...debounced.events })
+document.addEventListener('my-application:input', event => { ... })
+```
+
 ## FAQ
 
 - What is the default `wait` time?
