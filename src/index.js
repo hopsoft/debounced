@@ -23,7 +23,7 @@ const dispatch = event => {
     composed,
     detail: { originalEvent: event }
   })
-  setTimeout(event.target.dispatchEvent(debouncedEvent))
+  setTimeout(() => { event.target.dispatchEvent(debouncedEvent) })
 }
 
 export const initializeEvent = (name, options = {}) => {
