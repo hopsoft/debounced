@@ -84,6 +84,18 @@ debounced.initialize({ prefix: 'my-application', ...debounced.events })
 document.addEventListener('my-application:input', event => { ... })
 ```
 
+You can fire the event on the leading edge of the timeout with option `leading` set to `true` (default is `false`).
+You can fire the event on the trailing edge of the timeout with option `trailing` set to `true` (default is `true`).
+
+```js
+import debounced from 'debounced'
+
+// fire the keyup event as soon as it is receive and debounce the following keyup event(s) during the wait time period.
+debounced.initialize({ keyup: { wait: 200, leading: true, trailing: true } })
+```
+
+Note: If `leading` and `trailing` options are `true`, the event is fired on the trailing edge of the timeout only if the event occurred more than once during the wait timeout.
+
 ## FAQ
 
 - What is the default `wait` time?
