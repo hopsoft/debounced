@@ -6,6 +6,7 @@ const initializedEvents = {}
 export const debounce = (fn, options = {}) => {
   const { wait, leading, trailing } = { leading: false, trailing: true, ...options }
   let timeoutId
+  let leadingOccurrence = false
   let occurrenceCount = 0
   return (...args) => {
     occurrenceCount += 1
