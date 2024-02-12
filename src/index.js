@@ -4,13 +4,21 @@ let prefix = 'debounced'
 const initializedEvents = {}
 
 export const debounce = (fn, options = {}) => {
-  const { wait } = options
+  const { wait, leading, trailing } = { leading: false, trailing: true, ...options }
   let timeoutId
+  let leadingOccurrence = false
+  let occurrenceCount = 0
   return (...args) => {
+    occurrenceCount += 1
+    leadingOccurrence = leading && occurrenceCount == 1
+
+    if (leadingOccurrence) fn(...args)
+
     clearTimeout(timeoutId)
     timeoutId = setTimeout(() => {
       timeoutId = null
-      fn(...args)
+      occurrenceCount = 0
+      if (trailing && !leadingOccurrence) fn(...args)
     }, wait)
   }
 }
