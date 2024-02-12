@@ -33,8 +33,8 @@ const dispatch = event => {
   })
 
   const dispatchDebouncedEvent = () => {
-    event.target.dispatchEvent(debouncedEvent);
-  };
+    event.target.dispatchEvent(debouncedEvent)
+  }
 
   setTimeout(dispatchDebouncedEvent)
 }

@@ -4,14 +4,15 @@
   "description": "Debounced versions of standard high frequency DOM events",
   "main": "src/index.js",
   "repository": "https://github.com/hopsoft/debounced",
-  "author": "Nate Hopkins",
+  "author": "Nate Hopkins (hopsoft) <natehop@gmail.com>",
   "license": "MIT",
-  "private": false,
   "scripts": {
-    "prettier-standard:check": "yarn run prettier-standard --check *.js **/*.js",
-    "prettier-standard:format": "yarn run prettier-standard *.js **/*.js"
+    "build": "esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
+    "prettier:check": "yarn run prettier --check --fail-on-errors .",
+    "prettier:write": "yarn run prettier --write ."
   },
   "devDependencies": {
-    "prettier-standard": "^16.1.0"
+    "esbuild": "^0.20.0",
+    "prettier": "^3.2.5"
   }
 }
