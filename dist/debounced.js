@@ -83,25 +83,44 @@ var events_default = {
   wheel: { wait, leading, trailing }
 };
 
+// src/elements.js
+function uniqueId(element) {
+  if (!element || element.nodeType !== Node.ELEMENT_NODE)
+    return element == null ? void 0 : element.nodeName;
+  if (element.id && document.querySelectorAll(`#${element.id}`).length === 1)
+    return element.id;
+  const treeWalker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_ELEMENT, null, false);
+  let currentNode = null;
+  let index = 0;
+  while (currentNode !== element) {
+    currentNode = treeWalker.nextNode();
+    index++;
+  }
+  return `${element.nodeName.toLowerCase()}-${index}`;
+}
+var elements_default = { uniqueId };
+
 // src/index.js
 var prefix = "debounced";
 var initializedEvents = {};
-var debounce = (fn, options = {}) => {
+var timeouts = {};
+var debounce = (callback, options = {}) => {
   const { wait: wait2, leading: leading2, trailing: trailing2 } = __spreadValues({ leading: false, trailing: true }, options);
   let timeoutId;
   let leadingOccurrence = false;
   let occurrenceCount = 0;
-  return (...args) => {
+  return (event) => {
+    timeoutId = elements_default.uniqueId(event.target);
     occurrenceCount += 1;
     leadingOccurrence = leading2 && occurrenceCount == 1;
     if (leadingOccurrence)
-      fn(...args);
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
+      callback(event);
+    clearTimeout(timeouts[timeoutId]);
+    timeouts[timeoutId] = setTimeout(() => {
       timeoutId = null;
       occurrenceCount = 0;
       if (trailing2 && !leadingOccurrence)
-        fn(...args);
+        callback(event);
     }, wait2);
   };
 };

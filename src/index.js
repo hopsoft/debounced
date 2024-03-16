@@ -1,69 +1,30 @@
 import events from './events'
+import elements from './elements'
 
 let prefix = 'debounced'
 const initializedEvents = {}
-/**
- * Mapping of target id to their associated timeout ids
- * @type {Object.<string, number>}
- */
-const timeoutIds = {}
-let idGenerator = 0
+const timeouts = {}
 
-export const debounce = (fn, options = {}) => {
+export const debounce = (callback, options = {}) => {
   const { wait, leading, trailing } = { leading: false, trailing: true, ...options }
   let timeoutId
   let leadingOccurrence = false
   let occurrenceCount = 0
-  return (...args) => {
+  return event => {
+    timeoutId = elements.uniqueId(event.target)
     occurrenceCount += 1
     leadingOccurrence = leading && occurrenceCount == 1
 
-    if (leadingOccurrence) fn(...args)
+    if (leadingOccurrence) callback(event)
 
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => {
+    clearTimeout(timeouts[timeoutId])
+    timeouts[timeoutId] = setTimeout(() => {
       timeoutId = null
       occurrenceCount = 0
-      if (trailing && !leadingOccurrence) fn(...args)
+      if (trailing && !leadingOccurrence) callback(event)
     }, wait)
   }
 }
-
-/**
- * Get the id of the element or generate one if it doesn't exist
- * @param element {HTMLElement}
- * @param attributeKey {string}
- * @returns {string}
- */
-const getOrGenerateId = (element, attributeKey) => {
-  let id = element.getAttribute(attributeKey)
-  if (!id) {
-    id = idGenerator++
-    element.setAttribute(attributeKey, id.toString())
-  }
-  return id
-}
-
-export const debounceEvent = (fn, options = {}) => {
-  const { wait, leading, trailing } = { leading: false, trailing: true, ...options }
-  let leadingOccurrence = false
-  let occurrenceCount = 0
-  return event => {
-    occurrenceCount += 1
-    leadingOccurrence = leading && occurrenceCount == 1
-    if (leadingOccurrence) fn(event)
-    const target = event.target
-    const key = `${prefix}-id`
-    const targetId = target ? getOrGenerateId(target, key) : 'no-target'
-    const timeoutId = timeoutIds[targetId]
-    clearTimeout(timeoutId)
-    timeoutIds[targetId] = setTimeout(() => {
-      delete timeoutIds[targetId]
-      if (trailing && !leadingOccurrence) fn(event)
-    }, wait)
-  }
-}
-
 
 const dispatch = event => {
   const { bubbles, cancelable, composed } = event
@@ -83,7 +44,7 @@ const dispatch = event => {
 export const initializeEvent = (name, options = {}) => {
   if (initializedEvents[name]) return
   initializedEvents[name] = options || {}
-  const debouncedDispatch = debounceEvent(dispatch, options)
+  const debouncedDispatch = debounce(dispatch, options)
   document.addEventListener(name, event => debouncedDispatch(event))
 }
 
