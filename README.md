@@ -5,6 +5,19 @@
 This library uses [event delegation](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#Event_delegation)
 to add debounced versions of standard [*bubbling*](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles) DOM events.
 
+<!-- Tocer[start]: Auto-generated, don't remove. -->
+
+## Table of Contents
+
+  - [Why?](#why)
+  - [Install](#install)
+  - [Basic Usage](#basic-usage)
+  - [Advanced Usage](#advanced-usage)
+  - [FAQ](#faq)
+  - [Releasing](#releasing)
+
+<!-- Tocer[finish]: Auto-generated, don't remove. -->
+
 ## Why?
 
 Have you ever wired up event listeners for [`keyup`](https://developer.mozilla.org/en-US/docs/Web/API/Document/keyup_event),
@@ -63,6 +76,19 @@ import debounced from 'debounced'
 // initialize default events but change the wait time for keyup
 debounced.initialize({ ...debounced.events, keyup: { wait: 100 } })
 ```
+
+You can specify when the debounced event should dispatch by indicating whether it should trigger at the
+leading and/or trailing edge of the wait timeout.
+
+```js
+import debounced from 'debounced'
+
+// initialize default events and change to leading debounce
+debounced.initialize({ ...debounced.events, keyup: { leading: true, trailing: false } })
+```
+
+> [!NOTE]
+> Defaults are `{ wait: 200, leading: false, trailing: true }`
 
 You can also add debounced versions of custom events.
 

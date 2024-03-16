@@ -1,31 +1,10 @@
 import events from './events'
-import elements from './elements'
 
 let prefix = 'debounced'
 const initializedEvents = {}
 const timeouts = {}
 
-export const debounce = (callback, options = {}) => {
-  const { wait, leading, trailing } = { leading: false, trailing: true, ...options }
-  let timeoutId
-  let leadingOccurrence = false
-  let occurrenceCount = 0
-  return event => {
-    timeoutId = elements.uniqueId(event.target)
-    occurrenceCount += 1
-    leadingOccurrence = leading && occurrenceCount == 1
-
-    if (leadingOccurrence) callback(event)
-
-    clearTimeout(timeouts[timeoutId])
-    timeouts[timeoutId] = setTimeout(() => {
-      timeoutId = null
-      occurrenceCount = 0
-      if (trailing && !leadingOccurrence) callback(event)
-    }, wait)
-  }
-}
-
+// event dispatcher used by all debounced events
 const dispatch = event => {
   const { bubbles, cancelable, composed } = event
   const debouncedEvent = new CustomEvent(`${prefix}:${event.type}`, {
@@ -34,18 +13,31 @@ const dispatch = event => {
     composed,
     detail: { originalEvent: event }
   })
-  const dispatchDebouncedEvent = () => {
-    event.target.dispatchEvent(debouncedEvent)
-  }
-
+  const dispatchDebouncedEvent = () => event.target.dispatchEvent(debouncedEvent)
   setTimeout(dispatchDebouncedEvent)
+}
+
+// creates an event handler that debounces standard DOM events
+export const debounce = (options = {}) => {
+  const { wait, leading, trailing } = { leading: false, trailing: true, ...options }
+  let timeoutId
+
+  return event => {
+    clearTimeout(timeouts[event.target])
+
+    if (leading) dispatch(event) // fire leading
+
+    timeouts[timeoutId] = setTimeout(() => {
+      delete timeouts[event.target]
+      if (trailing) dispatch(event) // fire trailing
+    }, wait)
+  }
 }
 
 export const initializeEvent = (name, options = {}) => {
   if (initializedEvents[name]) return
   initializedEvents[name] = options || {}
-  const debouncedDispatch = debounce(dispatch, options)
-  document.addEventListener(name, event => debouncedDispatch(event))
+  document.addEventListener(name, event => debounce(event))
 }
 
 const initialize = (evts = events) => {

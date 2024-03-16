@@ -83,47 +83,10 @@ var events_default = {
   wheel: { wait, leading, trailing }
 };
 
-// src/elements.js
-function uniqueId(element) {
-  if (!element || element.nodeType !== Node.ELEMENT_NODE)
-    return element == null ? void 0 : element.nodeName;
-  if (element.id && document.querySelectorAll(`#${element.id}`).length === 1)
-    return element.id;
-  const treeWalker = document.createTreeWalker(document.documentElement, NodeFilter.SHOW_ELEMENT, null, false);
-  let currentNode = null;
-  let index = 0;
-  while (currentNode !== element) {
-    currentNode = treeWalker.nextNode();
-    index++;
-  }
-  return `${element.nodeName.toLowerCase()}-${index}`;
-}
-var elements_default = { uniqueId };
-
 // src/index.js
 var prefix = "debounced";
 var initializedEvents = {};
 var timeouts = {};
-var debounce = (callback, options = {}) => {
-  const { wait: wait2, leading: leading2, trailing: trailing2 } = __spreadValues({ leading: false, trailing: true }, options);
-  let timeoutId;
-  let leadingOccurrence = false;
-  let occurrenceCount = 0;
-  return (event) => {
-    timeoutId = elements_default.uniqueId(event.target);
-    occurrenceCount += 1;
-    leadingOccurrence = leading2 && occurrenceCount == 1;
-    if (leadingOccurrence)
-      callback(event);
-    clearTimeout(timeouts[timeoutId]);
-    timeouts[timeoutId] = setTimeout(() => {
-      timeoutId = null;
-      occurrenceCount = 0;
-      if (trailing2 && !leadingOccurrence)
-        callback(event);
-    }, wait2);
-  };
-};
 var dispatch = (event) => {
   const { bubbles, cancelable, composed } = event;
   const debouncedEvent = new CustomEvent(`${prefix}:${event.type}`, {
@@ -132,17 +95,28 @@ var dispatch = (event) => {
     composed,
     detail: { originalEvent: event }
   });
-  const dispatchDebouncedEvent = () => {
-    event.target.dispatchEvent(debouncedEvent);
-  };
+  const dispatchDebouncedEvent = () => event.target.dispatchEvent(debouncedEvent);
   setTimeout(dispatchDebouncedEvent);
+};
+var debounce = (options = {}) => {
+  const { wait: wait2, leading: leading2, trailing: trailing2 } = __spreadValues({ leading: false, trailing: true }, options);
+  let timeoutId;
+  return (event) => {
+    clearTimeout(timeouts[event.target]);
+    if (leading2)
+      dispatch(event);
+    timeouts[timeoutId] = setTimeout(() => {
+      delete timeouts[event.target];
+      if (trailing2)
+        dispatch(event);
+    }, wait2);
+  };
 };
 var initializeEvent = (name, options = {}) => {
   if (initializedEvents[name])
     return;
   initializedEvents[name] = options || {};
-  const debouncedDispatch = debounce(dispatch, options);
-  document.addEventListener(name, (event) => debouncedDispatch(event));
+  document.addEventListener(name, (event) => debounce(event));
 };
 var initialize = (evts = events_default) => {
   prefix = evts.prefix || prefix;
