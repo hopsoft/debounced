@@ -109,3 +109,14 @@ Note: If `leading` and `trailing` options are `true`, the event is fired on the 
 - Does the debounced event run before or after the standard DOM event?
 
   **After**
+
+## Releasing
+
+1. Run `npm update` to pick up the latest dependencies
+1. Update the version number consistently in the following files:
+   * `package.json` - pre-release versions use `-preN`
+1. Run `npm run prettier:write`
+1. Run `npm run build`
+1. Commit and push any changes to GitHub
+1. Run `npm publish --access public`
+1. Create a new release on GitHub ([here](https://github.com/hopsoft/debounced/releases))
