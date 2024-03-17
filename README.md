@@ -1,4 +1,5 @@
 [![Lines of Code](https://img.shields.io/badge/loc-134-47d299.svg)](http://blog.codinghorror.com/the-best-code-is-no-code-at-all/)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/865251d9cf564a01b263762f4a2bf71a)](https://app.codacy.com/gh/hopsoft/debounced/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 
 # Debounced
 
