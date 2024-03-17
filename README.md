@@ -151,7 +151,7 @@ document.addEventListener('custom-prefix:click', event => { ... })
 ## API
 
 | Name                   | Description                                     |
-|------------------------|-------------------------------------------------|-
+|------------------------|-------------------------------------------------|
 | `defaultEventNames`    | List of native DOM events that bubble           |
 | `defaultOptions`       | Default options applied when registering events |
 | `initialize`           | Intializes and registers debounced events       |
