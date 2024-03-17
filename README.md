@@ -146,10 +146,13 @@ debounced.unregister(['click', 'input', 'keydown'])
 
 ### Debounced Event Prefix
 
+> [!IMPORTANT]
+> Setting the prefix needs to be done before invoking `initialize` or `register[Event]`.
+
 You can change the prefix of the debounced event names.
 
 ```js
-debounced.prefix = 'custom-prefix'
+debounced.prefix = 'custom-prefix' // must be set before invoking initialize
 debounced.initialize()
 document.addEventListener('custom-prefix:click', event => { ... })
 ```
