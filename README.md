@@ -22,7 +22,7 @@ to add debounced versions of native _(and custom)_ [*bubbling*](https://develope
     - [Leading / Trailing Debounce](#leading--trailing-debounce)
     - [Custom Events](#custom-events)
     - [Unregistering Events](#unregistering-events)
-    - [Debounced Prefix](#debounced-prefix)
+    - [Debounced Event Prefix](#debounced-event-prefix)
   - [API](#api)
   - [FAQ](#faq)
   - [Releasing](#releasing)
@@ -138,7 +138,7 @@ debounded.unregisterEvent('keyup')
 debounced.unregister(['click', 'input', 'keydown'])
 ```
 
-### Debounced Prefix
+### Debounced Event Prefix
 
 You can change the prefix of the debounced event names.
 
