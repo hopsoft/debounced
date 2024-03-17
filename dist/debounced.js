@@ -19,121 +19,122 @@ var __spreadValues = (a, b) => {
 var wait = 200;
 var leading = false;
 var trailing = true;
-var events_default = {
-  DOMContentLoaded: { wait, leading, trailing },
-  abort: { wait, leading, trailing },
-  animationcancel: { wait, leading, trailing },
-  animationend: { wait, leading, trailing },
-  animationiteration: { wait, leading, trailing },
-  animationstart: { wait, leading, trailing },
-  auxclick: { wait, leading, trailing },
-  change: { wait, leading, trailing },
-  click: { wait, leading, trailing },
-  compositionend: { wait, leading, trailing },
-  compositionstart: { wait, leading, trailing },
-  compositionupdate: { wait, leading, trailing },
-  contextmenu: { wait, leading, trailing },
-  copy: { wait, leading, trailing },
-  cut: { wait, leading, trailing },
-  dblclick: { wait, leading, trailing },
-  drag: { wait, leading, trailing },
-  dragend: { wait, leading, trailing },
-  dragenter: { wait, leading, trailing },
-  dragleave: { wait, leading, trailing },
-  dragover: { wait, leading, trailing },
-  dragstart: { wait, leading, trailing },
-  drop: { wait, leading, trailing },
-  error: { wait, leading, trailing },
-  focusin: { wait, leading, trailing },
-  focusout: { wait, leading, trailing },
-  fullscreenchange: { wait, leading, trailing },
-  fullscreenerror: { wait, leading, trailing },
-  hashchange: { wait, leading, trailing },
-  input: { wait, leading, trailing },
-  keydown: { wait, leading, trailing },
-  keyup: { wait, leading, trailing },
-  mousedown: { wait, leading, trailing },
-  mousemove: { wait, leading, trailing },
-  mouseout: { wait, leading, trailing },
-  mouseover: { wait, leading, trailing },
-  mouseup: { wait, leading, trailing },
-  paste: { wait, leading, trailing },
-  pointercancel: { wait, leading, trailing },
-  pointerdown: { wait, leading, trailing },
-  pointerlockchange: { wait, leading, trailing },
-  pointerlockerror: { wait, leading, trailing },
-  pointermove: { wait, leading, trailing },
-  pointerout: { wait, leading, trailing },
-  pointerover: { wait, leading, trailing },
-  pointerup: { wait, leading, trailing },
-  popstate: { wait, leading, trailing },
-  reset: { wait, leading, trailing },
-  scroll: { wait, leading, trailing },
-  select: { wait, leading, trailing },
-  submit: { wait, leading, trailing },
-  touchcancel: { wait, leading, trailing },
-  touchend: { wait, leading, trailing },
-  touchmove: { wait, leading, trailing },
-  touchstart: { wait, leading, trailing },
-  transitioncancel: { wait, leading, trailing },
-  transitionend: { wait, leading, trailing },
-  transitionrun: { wait, leading, trailing },
-  transitionstart: { wait, leading, trailing },
-  visibilitychange: { wait, leading, trailing },
-  wheel: { wait, leading, trailing }
-};
+var nativeBubblingEventNames = [
+  "DOMContentLoaded",
+  "abort",
+  "animationcancel",
+  "animationend",
+  "animationiteration",
+  "animationstart",
+  "auxclick",
+  "change",
+  "click",
+  "compositionend",
+  "compositionstart",
+  "compositionupdate",
+  "contextmenu",
+  "copy",
+  "cut",
+  "dblclick",
+  "drag",
+  "dragend",
+  "dragenter",
+  "dragleave",
+  "dragover",
+  "dragstart",
+  "drop",
+  "error",
+  "focusin",
+  "focusout",
+  "fullscreenchange",
+  "fullscreenerror",
+  "hashchange",
+  "input",
+  "keydown",
+  "keyup",
+  "mousedown",
+  "mousemove",
+  "mouseout",
+  "mouseover",
+  "mouseup",
+  "paste",
+  "pointercancel",
+  "pointerdown",
+  "pointerlockchange",
+  "pointerlockerror",
+  "pointermove",
+  "pointerout",
+  "pointerover",
+  "pointerup",
+  "popstate",
+  "reset",
+  "scroll",
+  "select",
+  "submit",
+  "touchcancel",
+  "touchend",
+  "touchmove",
+  "touchstart",
+  "transitioncancel",
+  "transitionend",
+  "transitionrun",
+  "transitionstart",
+  "visibilitychange",
+  "wheel"
+];
+var defaultOptions = { wait, leading, trailing };
+var events = nativeBubblingEventNames.reduce((memo, name) => {
+  memo[name] = __spreadValues({}, defaultOptions);
+  return memo;
+}, {});
 
 // src/index.js
 var prefix = "debounced";
-var initializedEvents = {};
+var registeredEvents = {};
 var timeouts = {};
-var dispatch = (event) => {
-  const { bubbles, cancelable, composed } = event;
-  const debouncedEvent = new CustomEvent(`${prefix}:${event.type}`, {
+var dispatchDebouncedEvent = (sourceEvent) => {
+  const { bubbles, cancelable, composed } = sourceEvent;
+  const debouncedEvent = new CustomEvent(`${prefix}:${sourceEvent.type}`, {
     bubbles,
     cancelable,
     composed,
-    detail: { originalEvent: event }
+    detail: { sourceEvent, originalEvent: sourceEvent }
+    // NOTE: renamed originalEvent to sourceEvent (originalEvent is deprecated)
   });
-  const dispatchDebouncedEvent = () => event.target.dispatchEvent(debouncedEvent);
-  setTimeout(dispatchDebouncedEvent);
+  return setTimeout(() => sourceEvent.target.dispatchEvent(debouncedEvent));
 };
-var debounce = (options = {}) => {
-  const { wait: wait2, leading: leading2, trailing: trailing2 } = __spreadValues({ leading: false, trailing: true }, options);
-  let timeoutId;
+var buildDebounceEventHandler = (options = {}) => {
+  const { wait: wait2, leading: leading2, trailing: trailing2 } = __spreadValues(__spreadValues({}, defaultOptions), options);
   return (event) => {
     clearTimeout(timeouts[event.target]);
-    if (leading2)
-      dispatch(event);
-    timeouts[timeoutId] = setTimeout(() => {
+    if (leading2 && !timeouts[event.target])
+      dispatchDebouncedEvent(event);
+    timeouts[event.target] = setTimeout(() => {
       delete timeouts[event.target];
       if (trailing2)
-        dispatch(event);
+        dispatchDebouncedEvent(event);
     }, wait2);
   };
 };
-var initializeEvent = (name, options = {}) => {
-  if (initializedEvents[name])
+var registerEvent = (name, options = {}) => {
+  if (registeredEvents[name])
     return;
-  initializedEvents[name] = options || {};
-  document.addEventListener(name, (event) => debounce(event));
+  registeredEvents[name] = __spreadValues(__spreadValues({}, defaultOptions), options);
+  document.addEventListener(name, (event) => buildDebounceEventHandler(event));
 };
-var initialize = (evts = events_default) => {
+var initialize = (evts = events) => {
   prefix = evts.prefix || prefix;
   delete evts.prefix;
-  for (const [name, options] of Object.entries(evts)) {
-    initializeEvent(name, options);
-  }
+  for (const [name, options] of Object.entries(evts))
+    registerEvent(name, options);
 };
 var src_default = {
-  debounce,
-  events: events_default,
   initialize,
-  initializeEvent,
-  initializedEvents
+  registerEvent,
+  get registeredEvents() {
+    return __spreadValues({}, registeredEvents);
+  }
 };
 export {
-  debounce,
-  src_default as default,
-  initializeEvent
+  src_default as default
 };

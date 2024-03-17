@@ -80,15 +80,18 @@ debounced.initialize({ ...debounced.events, keyup: { wait: 100 } })
 You can specify when the debounced event should dispatch by indicating whether it should trigger at the
 leading and/or trailing edge of the wait timeout.
 
+> [!NOTE]
+
+> If both `leading` and `trailing` are `true`, the debounced event will dispatch once immediately before
+> the source event and once after the source event.
+> Default values are: `{ leading: false, trailing: true }`
+
 ```js
 import debounced from 'debounced'
 
 // initialize default events and change to leading debounce
 debounced.initialize({ ...debounced.events, keyup: { leading: true, trailing: false } })
 ```
-
-> [!NOTE]
-> Defaults are `{ wait: 200, leading: false, trailing: true }`
 
 You can also add debounced versions of custom events.
 
@@ -110,18 +113,6 @@ debounced.initialize({ prefix: 'my-application', ...debounced.events })
 document.addEventListener('my-application:input', event => { ... })
 ```
 
-You can fire the event on the leading edge of the timeout with option `leading` set to `true` (default is `false`).
-You can fire the event on the trailing edge of the timeout with option `trailing` set to `true` (default is `true`).
-
-```js
-import debounced from 'debounced'
-
-// fire the keyup event as soon as it is receive and debounce the following keyup event(s) during the wait time period.
-debounced.initialize({ keyup: { wait: 200, leading: true, trailing: true } })
-```
-
-Note: If `leading` and `trailing` options are `true`, the event is fired on the trailing edge of the timeout only if the event occurred more than once during the wait timeout.
-
 ## FAQ
 
 - What is the default `wait` time?
@@ -141,7 +132,7 @@ Note: If `leading` and `trailing` options are `true`, the event is fired on the 
 1. Run `npm update` to pick up the latest dependencies
 1. Update the version number consistently in the following files:
    * `package.json` - pre-release versions use `-preN`
-1. Run `npm run prettier:write`
+1. Run `npm run standardize`
 1. Run `npm run build`
 1. Commit and push any changes to GitHub
 1. Run `npm publish --access public`

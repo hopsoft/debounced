@@ -1,57 +1,88 @@
-import events from './events'
+import { defaultOptions, events } from './events'
 
 let prefix = 'debounced'
-const initializedEvents = {}
+const registeredEvents = {}
 const timeouts = {}
 
-// event dispatcher used by all debounced events
-const dispatch = event => {
-  const { bubbles, cancelable, composed } = event
-  const debouncedEvent = new CustomEvent(`${prefix}:${event.type}`, {
+//
+/**
+ * Event dispatcher used to trigger all custom debounced events.
+ * @param {Event} sourceEvent - The original native event being debounced
+ */
+const dispatchDebouncedEvent = sourceEvent => {
+  const { bubbles, cancelable, composed } = sourceEvent
+  const debouncedEvent = new CustomEvent(`${prefix}:${sourceEvent.type}`, {
     bubbles,
     cancelable,
     composed,
-    detail: { originalEvent: event }
+    detail: { sourceEvent, originalEvent: sourceEvent } // NOTE: renamed originalEvent to sourceEvent (originalEvent is deprecated)
   })
-  const dispatchDebouncedEvent = () => event.target.dispatchEvent(debouncedEvent)
-  setTimeout(dispatchDebouncedEvent)
+
+  // @note Both leading and trailing debounced events are executed on the next tick of the event loop
+  //       This allows the sourceEvent and its handlers to complete before the debounced event is dispatched
+  return setTimeout(() => sourceEvent.target.dispatchEvent(debouncedEvent))
 }
 
-// creates an event handler that debounces standard DOM events
-export const debounce = (options = {}) => {
-  const { wait, leading, trailing } = { leading: false, trailing: true, ...options }
-  let timeoutId
-
+/**
+ * Builds an event handler for the sourceEvent that dispatches the debounced event(s).
+ * @param {Object} options - Debounce options
+ * @param {Number} options.wait - Milliseconds to wait before dispatching the trailing debounced event
+ * @param {Boolean} options.leading - Whether or not to dispatch a debounced event BEFORE the sourceEvent
+ * @param {Boolean} options.trailing - Whether or not to dispatch a debounced event AFTER the sourceEvent
+ * @returns {Function} - Event handler that dispatches the debounced event(s)
+ */
+const buildDebounceEventHandler = (options = {}) => {
+  const { wait, leading, trailing } = { ...defaultOptions, ...options }
   return event => {
-    clearTimeout(timeouts[event.target])
+    clearTimeout(timeouts[event.target]) // reset timeout
 
-    if (leading) dispatch(event) // fire leading
+    // dispatch leading debounced event
+    if (leading && !timeouts[event.target]) dispatchDebouncedEvent(event)
 
-    timeouts[timeoutId] = setTimeout(() => {
-      delete timeouts[event.target]
-      if (trailing) dispatch(event) // fire trailing
+    // NOTE: setTimeout returns a positive integer
+    // SEE: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#return_value
+    timeouts[event.target] = setTimeout(() => {
+      delete timeouts[event.target] // cleanup
+
+      // dispatch trailing debounced event
+      if (trailing) dispatchDebouncedEvent(event)
     }, wait)
   }
 }
 
-export const initializeEvent = (name, options = {}) => {
-  if (initializedEvents[name]) return
-  initializedEvents[name] = options || {}
-  document.addEventListener(name, event => debounce(event))
+/**
+ * Registers an individual event for debouncing.
+ * @param {String} name - Name of the sourceEvent to debounce
+ * @param {Object} options - Debounce options
+ */
+const registerEvent = (name, options = {}) => {
+  if (registeredEvents[name]) return
+  registeredEvents[name] = { ...defaultOptions, ...options }
+  document.addEventListener(name, event => buildDebounceEventHandler(event))
 }
 
+/**
+ * Initializes debounced events.
+ *
+ * @example
+ *   initialize({
+ *     'change': { wait: 200, leading: false, trailing: true },
+ *     'click': { wait: 200, leading: false, trailing: true },
+ *     // more events...
+ *   })
+ *
+ * @param {Object} evts - Event options to register
+ */
 const initialize = (evts = events) => {
   prefix = evts.prefix || prefix
   delete evts.prefix
-  for (const [name, options] of Object.entries(evts)) {
-    initializeEvent(name, options)
-  }
+  for (const [name, options] of Object.entries(evts)) registerEvent(name, options)
 }
 
 export default {
-  debounce,
-  events,
   initialize,
-  initializeEvent,
-  initializedEvents
+  registerEvent,
+  get registeredEvents() {
+    return { ...registeredEvents }
+  }
 }

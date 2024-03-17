@@ -8,8 +8,9 @@
   "license": "MIT",
   "scripts": {
     "build": "esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
-    "prettier:check": "yarn run prettier --check --fail-on-errors .",
-    "prettier:write": "yarn run prettier --write ."
+    "prettier:check": "yarn run prettier --check --fail-on-errors ./src",
+    "prettier:write": "yarn run prettier --write ./src",
+    "standardize": "yarn run prettier:write"
   },
   "devDependencies": {
     "esbuild": "^0.20.0",
