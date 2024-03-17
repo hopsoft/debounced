@@ -163,13 +163,13 @@ document.addEventListener('custom-prefix:click', event => { ... })
 | `unregisterEvent`      | Unregisters a single event                      |
 | `unregister`           | Unregisters a list of events                    |
 
-The source is small and well documented. [Learn more about the API here.](#todo)
+The source is small and well documented. [Learn more about the API here.](src/index.js)
 
 ## FAQ
 
 **Q:** What are the default native events that bubble?
 
-**A:** [View the list here](#todo) and learn more about these events at [MDN](https://developer.mozilla.org/en-US/docs/Web/Events).
+**A:** [View the list here](src/events.js) and learn more about these events at [MDN](https://developer.mozilla.org/en-US/docs/Web/Events).
 
 ---
 
