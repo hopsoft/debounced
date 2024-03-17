@@ -132,7 +132,7 @@ You can unregiser events at any time.
 
 ```js
 // unregister a single event
-debounded.unregisterEvent('keyup')
+debounced.unregisterEvent('keyup')
 
 // unregister a list of events
 debounced.unregister(['click', 'input', 'keydown'])
@@ -154,7 +154,7 @@ document.addEventListener('custom-prefix:click', event => { ... })
 |------------------------|-------------------------------------------------|
 | `defaultEventNames`    | List of native DOM events that bubble           |
 | `defaultOptions`       | Default options applied when registering events |
-| `initialize`           | Intializes and registers debounced events       |
+| `initialize`           | Initializes and registers debounced events      |
 | `prefix`               | Prefix used for debounced event names (get/set) |
 | `registerEvent`        | Registers a single event for debouncing         |
 | `register`             | Registers a list of events for debouncing       |
