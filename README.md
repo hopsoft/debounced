@@ -13,9 +13,9 @@ to add debounced versions of standard [*bubbling*](https://developer.mozilla.org
 
   - [Why?](#why)
   - [Install](#install)
-  - [Basic Usage](#basic-usage)
+  - [Quick Start](#quick-start)
+  - [Usage](#usage)
   - [API](#api)
-  - [Advanced Usage](#advanced-usage)
   - [FAQ](#faq)
   - [Releasing](#releasing)
 
@@ -47,7 +47,7 @@ Here are some examples.
 npm install debounced
 ```
 
-## Basic Usage
+## Quick Start
 
 Invoking `initialize` without arguments will register debounced events for [all native DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js).
 
@@ -72,22 +72,7 @@ document.getElementById('example').addEventListener('debounced:keydown', event =
 document.querySelectorAll('a').forEach(a => a.addEventListener('debounced:click', event => { ... }))
 ```
 
-## API
-
-| Name                   | Description                                     | Value                                              |
-|------------------------|-------------------------------------------------|----------------------------------------------------|
-| `defaultEventNames`    | list of native DOM events that bubble           | `Array<String>`                                    |
-| `defaultOptions`       | default options applied when registering events | `{ wait: 200, leading: false, trailing: true }`    |
-| `initialize`           | intializes and registers debounced events       | `Function(events: Array<String>, options: Object)` |
-| `prefix`               | prefix used for debounced event names (get/set) | `'debounced' - (get/set)`                          |
-| `registerEvent`        | registers a single event for debouncing         | `Function`                                         |
-| `register`             | registers a list of events for debouncing       | `Function(events: Array<String>, options: Object)` |
-| `registeredEventNames` | list of all registered event names              | `Array<String>`                                    |
-| `registeredEvents`     | all registered events with their options        | `Object - {String: Object}`                        |
-| `unregisterEvent`      | unregisters a single event                      | `Function(String)`                                 |
-| `unregister`           | unregisters a list of events                    | `Function(Array<String>)`                          |
-
-## Advanced Usage
+## Usage
 
 You can register additional events at any time.
 
@@ -156,6 +141,21 @@ debounced.prefix = 'custom-prefix'
 debounced.initialize()
 document.addEventListener('custom-prefix:click', event => { ... })
 ```
+
+## API
+
+| Name                   | Description                                     | Value                                              |
+|------------------------|-------------------------------------------------|----------------------------------------------------|
+| `defaultEventNames`    | List of native DOM events that bubble           | `Array<String>`                                    |
+| `defaultOptions`       | Default options applied when registering events | `{ wait: 200, leading: false, trailing: true }`    |
+| `initialize`           | Intializes and registers debounced events       | `Function(events: Array<String>, options: Object)` |
+| `prefix`               | Prefix used for debounced event names (get/set) | `'debounced' - (get/set)`                          |
+| `registerEvent`        | Registers a single event for debouncing         | `Function`                                         |
+| `register`             | Registers a list of events for debouncing       | `Function(events: Array<String>, options: Object)` |
+| `registeredEventNames` | List of all registered event names              | `Array<String>`                                    |
+| `registeredEvents`     | All registered events with their options        | `Object - {String: Object}`                        |
+| `unregisterEvent`      | Unregisters a single event                      | `Function(String)`                                 |
+| `unregister`           | Unregisters a list of events                    | `Function(Array<String>)`                          |
 
 ## FAQ
 
