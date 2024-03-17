@@ -92,14 +92,13 @@ var events = nativeBubblingEventNames.reduce((memo, name) => {
 var prefix = "debounced";
 var registeredEvents = {};
 var timeouts = {};
-var dispatchDebouncedEvent = (sourceEvent) => {
+var dispatchDebouncedEvent = (sourceEvent, type) => {
   const { bubbles, cancelable, composed } = sourceEvent;
   const debouncedEvent = new CustomEvent(`${prefix}:${sourceEvent.type}`, {
     bubbles,
     cancelable,
     composed,
-    detail: { sourceEvent, originalEvent: sourceEvent }
-    // NOTE: renamed originalEvent to sourceEvent (originalEvent is deprecated)
+    detail: { sourceEvent, type }
   });
   return setTimeout(() => sourceEvent.target.dispatchEvent(debouncedEvent));
 };
@@ -108,11 +107,11 @@ var buildDebounceEventHandler = (options = {}) => {
   return (event) => {
     clearTimeout(timeouts[event.target]);
     if (leading2 && !timeouts[event.target])
-      dispatchDebouncedEvent(event);
+      dispatchDebouncedEvent(event, "leading");
     timeouts[event.target] = setTimeout(() => {
       delete timeouts[event.target];
       if (trailing2)
-        dispatchDebouncedEvent(event);
+        dispatchDebouncedEvent(event, "trailing");
     }, wait2);
   };
 };

@@ -9,13 +9,13 @@ const timeouts = {}
  * Event dispatcher used to trigger all custom debounced events.
  * @param {Event} sourceEvent - The original native event being debounced
  */
-const dispatchDebouncedEvent = sourceEvent => {
+const dispatchDebouncedEvent = (sourceEvent, type) => {
   const { bubbles, cancelable, composed } = sourceEvent
   const debouncedEvent = new CustomEvent(`${prefix}:${sourceEvent.type}`, {
     bubbles,
     cancelable,
     composed,
-    detail: { sourceEvent, originalEvent: sourceEvent } // NOTE: renamed originalEvent to sourceEvent (originalEvent is deprecated)
+    detail: { sourceEvent, type }
   })
 
   // @note Both leading and trailing debounced events are executed on the next tick of the event loop
@@ -37,7 +37,7 @@ const buildDebounceEventHandler = (options = {}) => {
     clearTimeout(timeouts[event.target]) // reset timeout
 
     // dispatch leading debounced event
-    if (leading && !timeouts[event.target]) dispatchDebouncedEvent(event)
+    if (leading && !timeouts[event.target]) dispatchDebouncedEvent(event, 'leading')
 
     // NOTE: setTimeout returns a positive integer
     // SEE: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#return_value
@@ -45,7 +45,7 @@ const buildDebounceEventHandler = (options = {}) => {
       delete timeouts[event.target] // cleanup
 
       // dispatch trailing debounced event
-      if (trailing) dispatchDebouncedEvent(event)
+      if (trailing) dispatchDebouncedEvent(event, 'trailing')
     }, wait)
   }
 }
