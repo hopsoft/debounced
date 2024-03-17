@@ -52,13 +52,16 @@ const buildDebounceEventHandler = (options = {}) => {
 
 /**
  * Registers an individual event for debouncing.
+ * @note Events can be re-registered (replaces existing entry)
  * @param {String} name - Name of the sourceEvent to debounce
  * @param {Object} options - Debounce options
  */
 const registerEvent = (name, options = {}) => {
-  if (registeredEvents[name]) return
-  registeredEvents[name] = { ...defaultOptions, ...options }
-  document.addEventListener(name, event => buildDebounceEventHandler(event))
+  document.removeEventListener(name, registeredEvents[name]?.handler)
+  options = { ...defaultOptions, ...options }
+  options.handler = buildDebounceEventHandler(options)
+  registeredEvents[name] = options
+  document.addEventListener(name, options.handler)
 }
 
 /**
