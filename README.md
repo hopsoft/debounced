@@ -2,10 +2,10 @@
 
 # Debounced
 
-### Debounced versions of standard DOM events
+### Debounced versions of native DOM events
 
 This library uses [event delegation](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#Event_delegation)
-to add debounced versions of standard [*bubbling*](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles) DOM events.
+to add debounced versions of native _(and custom)_ [*bubbling*](https://developer.mozilla.org/en-US/docs/Web/API/Event/bubbles) DOM events.
 
 <!-- Tocer[start]: Auto-generated, don't remove. -->
 
@@ -15,6 +15,10 @@ to add debounced versions of standard [*bubbling*](https://developer.mozilla.org
   - [Install](#install)
   - [Quick Start](#quick-start)
   - [Usage](#usage)
+    - [Leading / Trailing](#leading--trailing)
+    - [Custom Events](#custom-events)
+    - [Unregistering Events](#unregistering-events)
+    - [Debounced Prefix](#debounced-prefix)
   - [API](#api)
   - [FAQ](#faq)
   - [Releasing](#releasing)
@@ -74,67 +78,65 @@ document.querySelectorAll('a').forEach(a => a.addEventListener('debounced:click'
 
 ## Usage
 
+Initialize with custom options.
+
+```js
+debounced.initialize(debounced.defaultEventNames, { wait: 500, leading: true, trailing: false })
+```
+
 You can register additional events at any time.
 
 ```js
-debounced.initialize(['click', 'input', 'keydown'])
-
-// register more events
+// register more events after initialization
 debounced.register(['change', 'mousedown'])
 ```
 
-You can customize options like `wait`, for already registered events.
+You can customize options for registered events by re-registering with different options.
 
 ```js
-// re-register events and change the wait time
+// re-register events and to change options
 debounced.register(debounced.registeredEventNames, { wait: 100 })
 ```
 
-You can also customize individual events.
+### Leading / Trailing
 
-```js
-// re-register the keyup event and change its wait time
-debounced.registerEvent('keyup', { wait: 100 })
-```
-
-You can specify when the debounced event should trigger via the `leading` and/or `trailing` options.
+You can specify when debounced events fire via the `leading` and `trailing` options.
 
 - `leading` - fires after the source event but before waiting
 - `trailing` - fires after the source event and after waiting
 
-The `leading` and `trailing` debounced event will only fire once per source event.
+Leading and trailing events will only fire once per source event.
 
 > [!NOTE]
 > If both `leading` and `trailing` are `true`, a debounced event will trigger before and after the timeout.
 
-```js
-// initialize all default events, but change to use leading debounce
-debounced.initialize(debounced.defaultEventNames, { leading: true, trailing: false })
+### Custom Events
 
-// - or -
-
-// register a single event with a leading debounce
-debounced.registerEvent('click', { leading: true, trailing: false })
-```
-
-You can also add debounced versions of custom events.
+You can add debounced versions of custom events.
 
 ```js
-// register a list of custom events
-debounced.register(['custom-event-one', 'custom-event-two'], { wait: 150 })
-
 // register an individual custom event
 debounced.registerEvent('custom-event', { ... })
+
+// register a list of custom events
+debounced.register(['custom-event-one', 'custom-event-two'], { wait: 150 })
 ```
+
+### Unregistering Events
 
 You can unregiser events at any time.
 
 ```js
-debounced.unregister(['click', 'input', 'keydown'])
+// unregister a single event
 debounded.unregisterEvent('keyup')
+
+// unregister a list of events
+debounced.unregister(['click', 'input', 'keydown'])
 ```
 
-You can even change the prefix of the debounced event names.
+### Debounced Prefix
+
+You can change the prefix of the debounced event names.
 
 ```js
 debounced.prefix = 'custom-prefix'
@@ -144,32 +146,31 @@ document.addEventListener('custom-prefix:click', event => { ... })
 
 ## API
 
-| Name                   | Description                                     | Value                                              |
-|------------------------|-------------------------------------------------|----------------------------------------------------|
-| `defaultEventNames`    | List of native DOM events that bubble           | `Array<String>`                                    |
-| `defaultOptions`       | Default options applied when registering events | `{ wait: 200, leading: false, trailing: true }`    |
-| `initialize`           | Intializes and registers debounced events       | `Function(events: Array<String>, options: Object)` |
-| `prefix`               | Prefix used for debounced event names (get/set) | `'debounced' - (get/set)`                          |
-| `registerEvent`        | Registers a single event for debouncing         | `Function`                                         |
-| `register`             | Registers a list of events for debouncing       | `Function(events: Array<String>, options: Object)` |
-| `registeredEventNames` | List of all registered event names              | `Array<String>`                                    |
-| `registeredEvents`     | All registered events with their options        | `Object - {String: Object}`                        |
-| `unregisterEvent`      | Unregisters a single event                      | `Function(String)`                                 |
-| `unregister`           | Unregisters a list of events                    | `Function(Array<String>)`                          |
+| Name                   | Description                                     |
+|------------------------|-------------------------------------------------|-
+| `defaultEventNames`    | List of native DOM events that bubble           |
+| `defaultOptions`       | Default options applied when registering events |
+| `initialize`           | Intializes and registers debounced events       |
+| `prefix`               | Prefix used for debounced event names (get/set) |
+| `registerEvent`        | Registers a single event for debouncing         |
+| `register`             | Registers a list of events for debouncing       |
+| `registeredEventNames` | List of all registered event names              |
+| `registeredEvents`     | All registered events with their options        |
+| `unregisterEvent`      | Unregisters a single event                      |
+| `unregister`           | Unregisters a list of events                    |
+
+The source is small and well documented. [Learn more about the API here.](#todo)
 
 ## FAQ
 
-- Q: What are all the default native events that bubble?
+- Q: What are the default native events that bubble?
   A: [View the list here](#todo) and learn more about these events at [MDN](https://developer.mozilla.org/en-US/docs/Web/Events).
 
 - Q: Can I register an event more than once?
-  A: **Yes**, new event registrations will overwrite existing ones.
+  A: **Yes**, event re-registration overwrites any existing registrations.
 
-- Q: Do I have to specify all options wen registering an event?
+- Q: Do I have to specify all options when registering an event?
   A: **No**, any omitted options will apply the defaults.
-
-- Q: What are the defaults when for register an event?
-  A: `{ wait: 200, leading: false, trailing: true }`
 
 - Q: Are importmaps supported?
   A: **Yes**, this library is compatible with importmaps.
