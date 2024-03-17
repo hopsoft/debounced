@@ -61,7 +61,7 @@ Invoking `initialize` without arguments will register debounced events for [all 
 
 > [!TIP]
 > Add the following code to your JavaScript app's entry point.
-> Somwhere like `app/javascript/application.js`, etc.
+> Somwhere like: `app/javascript/application.js`
 
 ```js
 import debounced from 'debounced'
