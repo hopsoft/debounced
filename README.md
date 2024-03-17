@@ -192,8 +192,7 @@ The source is small and well documented. [Learn more about the API here.](src/in
 ## Releasing
 
 1. Run `npm update` to pick up the latest dependencies
-1. Update the version number consistently in the following files:
-   * `package.json` - pre-release versions use `-preN`
+1. Update the version at `package.json` - pre-release versions use `-preN`
 1. Run `npm run standardize`
 1. Run `npm run build`
 1. Commit and push any changes to GitHub
