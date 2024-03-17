@@ -1,3 +1,5 @@
+[![Lines of Code](https://img.shields.io/badge/loc-1634-47d299.svg)](http://blog.codinghorror.com/the-best-code-is-no-code-at-all/)
+
 # Debounced
 
 ### Debounced versions of standard DOM events
@@ -12,6 +14,7 @@ to add debounced versions of standard [*bubbling*](https://developer.mozilla.org
   - [Why?](#why)
   - [Install](#install)
   - [Basic Usage](#basic-usage)
+  - [Public API](#public-api)
   - [Advanced Usage](#advanced-usage)
   - [FAQ](#faq)
   - [Releasing](#releasing)
@@ -68,6 +71,19 @@ document.addEventListener('debounced:input', event => { ... })
 document.getElementById('example').addEventListener('debounced:keydown', event => { ... })
 document.querySelectorAll('a').forEach(a => a.addEventListener('debounced:click', event => { ... }))
 ```
+
+## Public API
+
+- `defaultEventNames` - list of native DOM events that bubble _(list used by `initialize` when called without args)_
+- `defaultOptions` - default options applied when registering events
+- `initialize` - intializes and registers debounced events _(alias for `registerEvents`)_
+- `prefix` - prefix used for debounced event names _(get/set)_
+- `registerEvent` - registers a single event for debouncing
+- `register` - registers a list of events for debouncing _(aliased as `initialize`)_
+- `registeredEventNames` - list of all registered event names
+- `registeredEvents` - all registered events with their options
+- `unregisterEvent` - unregisters a single event
+- `unregister` - unregisters a list of events
 
 ## Advanced Usage
 
