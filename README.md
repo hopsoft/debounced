@@ -57,11 +57,11 @@ npm install debounced
 
 ## Quick Start
 
-Invoking `initialize` without arguments will register debounced events for [all native DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js).
-
 > [!TIP]
 > Add the following code to your JavaScript app's entry point.
 > Somwhere like: `app/javascript/application.js`
+
+Invoking `initialize` without arguments will register debounced events for [all native DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js).
 
 ```js
 import debounced from 'debounced'
