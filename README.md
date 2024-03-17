@@ -19,7 +19,7 @@ to add debounced versions of native _(and custom)_ [*bubbling*](https://develope
   - [Install](#install)
   - [Quick Start](#quick-start)
   - [Usage](#usage)
-    - [Leading / Trailing](#leading--trailing)
+    - [Leading / Trailing Debounce](#leading--trailing-debounce)
     - [Custom Events](#custom-events)
     - [Unregistering Events](#unregistering-events)
     - [Debounced Prefix](#debounced-prefix)
@@ -102,7 +102,7 @@ You can customize options for registered events by re-registering with different
 debounced.register(debounced.registeredEventNames, { wait: 100 })
 ```
 
-### Leading / Trailing
+### Leading / Trailing Debounce
 
 You can specify when debounced events fire via the `leading` and `trailing` options.
 
