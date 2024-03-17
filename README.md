@@ -49,18 +49,18 @@ npm install debounced
 
 ## Basic Usage
 
-Invoking `initialize` without arguments will register debounced events for [all native DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js),
+Invoking `initialize` without arguments will register debounced events for [all native DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js).
 
 ```js
 import debounced from 'debounced'
 
-// simply initialize to register all native DOM events that bubble
+// initialize without args to register all native DOM events that bubble
 debounced.initialize()
 ```
 
 You can also initialize with a custom list of events.
 
-```
+```js
 // initialize with a custom list of events
 debounced.initialize(['click', 'input', 'keydown'])
 ```
@@ -74,24 +74,18 @@ document.querySelectorAll('a').forEach(a => a.addEventListener('debounced:click'
 
 ## API
 
-```js
-import debounced from 'debounced'
-
-debounced
-{
-  defaultEventNames, // ...... list of native DOM events that bubble (list used by initialize when called without args)
-  defaultOptions, // ......... default options applied when registering events
-  initialize, // ............. intializes and registers debounced events (alias for registerEvents)
-  prefix, // ................. prefix used for debounced event names (get/set)
-  registerEvent, // .......... registers a single event for debouncing
-  register, // ............... registers a list of events for debouncing (aliased as initialize)
-  registeredEventNames, // ... list of all registered event names
-  registeredEvents, // ....... all registered events with their options
-  unregisterEvent, // ........ unregisters a single event
-  unregister // .............. unregisters a list of events
-}
-```
-
+| Name                   | Description                                     | Value                                              |
+|------------------------|-------------------------------------------------|----------------------------------------------------|
+| `defaultEventNames`    | list of native DOM events that bubble           | `Array<String>`                                    |
+| `defaultOptions`       | default options applied when registering events | `{ wait: 200, leading: false, trailing: true }`    |
+| `initialize`           | intializes and registers debounced events       | `Function(events: Array<String>, options: Object)` |
+| `prefix`               | prefix used for debounced event names (get/set) | `'debounced' - (get/set)`                          |
+| `registerEvent`        | registers a single event for debouncing         | `Function`                                         |
+| `register`             | registers a list of events for debouncing       | `Function(events: Array<String>, options: Object)` |
+| `registeredEventNames` | list of all registered event names              | `Array<String>`                                    |
+| `registeredEvents`     | all registered events with their options        | `Object - {String: Object}`                        |
+| `unregisterEvent`      | unregisters a single event                      | `Function(String)`                                 |
+| `unregister`           | unregisters a list of events                    | `Function(Array<String>)`                          |
 
 ## Advanced Usage
 
