@@ -30,8 +30,8 @@ often necessitate adding custom debounce functionality to your application.
 Now you can.
 
 This technique pairs extremely well with libraries like
-[Stimulus](https://github.com/stimulusjs/stimulus) and [StimulusReflex](https://github.com/hopsoft/stimulus_reflex).
-Here are some simple examples.
+[Stimulus](https://github.com/stimulusjs/stimulus), [TurboBoost Commands](https://github.com/hopsoft/turbo_boost-commands), and [StimulusReflex](https://github.com/hopsoft/stimulus_reflex).
+Here are some examples.
 
 ```erb
 <input type="text" data-controller="example" data-action="debounced:input->example#work">
@@ -41,91 +41,120 @@ Here are some simple examples.
 ## Install
 
 ```sh
-yarn add debounced
+npm install debounced
 ```
 
 ## Basic Usage
 
+Invoking `initialize` without arguments will register debounced events for [all native DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js),
+
 ```js
 import debounced from 'debounced'
+
+// simply initialize to register all native DOM events that bubble
 debounced.initialize()
 ```
 
+You can also initialize with a custom list of events.
+
+```
+// initialize with a custom list of events
+debounced.initialize(['click', 'input', 'keydown'])
+```
+
 ```js
+// listen for debounced events
 document.addEventListener('debounced:input', event => { ... })
 document.getElementById('example').addEventListener('debounced:keydown', event => { ... })
+document.querySelectorAll('a').forEach(a => a.addEventListener('debounced:click', event => { ... }))
 ```
 
 ## Advanced Usage
 
-By default we set up debounced events for [all DOM events that bubble](https://github.com/hopsoft/debounced/blob/master/src/events.js),
-but you can also specify which events you'd like debounced.
+You can register additional events at any time.
 
 ```js
-import debounced from 'debounced'
+debounced.initialize(['click', 'input', 'keydown'])
 
-// debounce only the input event and wait 100ms before dispatching
-debounced.initialize({ input: { wait: 100 } })
+// register more events
+debounced.register(['change', 'mousedown'])
 ```
 
-You can customize `wait` times for the default events.
+You can customize options like `wait`, for already registered events.
 
 ```js
-import debounced from 'debounced'
-
-// initialize default events but change the wait time for keyup
-debounced.initialize({ ...debounced.events, keyup: { wait: 100 } })
+// re-register events and change the wait time
+debounced.register(debounced.registeredEventNames, { wait: 100 })
 ```
 
-You can specify when the debounced event should dispatch by indicating whether it should trigger at the
-leading and/or trailing edge of the wait timeout.
+You can also customize individual events.
+
+```js
+// re-register the keyup event and change its wait time
+debounced.registerEvent('keyup', { wait: 100 })
+```
+
+You can specify when the debounced event should trigger via the `leading` and/or `trailing` options.
+
+- `leading` - fires after the source event but before waiting
+- `trailing` - fires after the source event and after waiting
+
+The `leading` and `trailing` debounced event will only fire once per source event.
 
 > [!NOTE]
-
-> If both `leading` and `trailing` are `true`, the debounced event will dispatch once immediately before
-> the source event and once after the source event.
-> Default values are: `{ leading: false, trailing: true }`
+> If both `leading` and `trailing` are `true`, a debounced event will trigger before and after the timeout.
 
 ```js
-import debounced from 'debounced'
+// initialize all default events, but change to use leading debounce
+debounced.initialize(debounced.defaultEventNames, { leading: true, trailing: false })
 
-// initialize default events and change to leading debounce
-debounced.initialize({ ...debounced.events, keyup: { leading: true, trailing: false } })
+// - or -
+
+// register a single event with a leading debounce
+debounced.registerEvent('click', { leading: true, trailing: false })
 ```
 
 You can also add debounced versions of custom events.
 
 ```js
-import debounced from 'debounced'
+// register a list of custom events
+debounced.register(['custom-event-one', 'custom-event-two'], { wait: 150 })
 
-// initialize all default events and add some custom events
-debounced.initialize({ ...debounced.events, "custom-event": { wait: 150 } })
+// register an individual custom event
+debounced.registerEvent('custom-event', { ... })
+```
 
+You can unregiser events at any time.
 
-// initialize a single custom event
-debounced.initializeEvent('another-custom-event', { wait: 150 })
+```js
+debounced.unregister(['click', 'input', 'keydown'])
+debounded.unregisterEvent('keyup')
 ```
 
 You can even change the prefix of the debounced event names.
 
 ```js
-debounced.initialize({ prefix: 'my-application', ...debounced.events })
-document.addEventListener('my-application:input', event => { ... })
+debounced.prefix = 'custom-prefix'
+debounced.initialize()
+document.addEventListener('custom-prefix:click', event => { ... })
 ```
 
 ## FAQ
 
-- What is the default `wait` time?
+- Q: What are all the default native events that bubble?
+  A: [View the list here](#todo) and learn more about these events at [MDN](https://developer.mozilla.org/en-US/docs/Web/Events).
 
-  **200ms**
+- Q: Can I register an event more than once?
+  A: **Yes**, new event registrations will overwrite existing ones.
 
-- Can I customize the `wait` time for an event type more than once?
+- Q: Do I have to specify all options wen registering an event?
+  A: **No**, any omitted options will apply the defaults.
 
-  **No, the setting used to initialize the event is global.**
+- Q: What are the defaults when for register an event?
+  A: `{ wait: 200, leading: false, trailing: true }`
 
-- Does the debounced event run before or after the standard DOM event?
-
-  **After**
+- Q: Are importmaps supported?
+  A: **Yes**, this library is compatible with importmaps.
 
 ## Releasing
 

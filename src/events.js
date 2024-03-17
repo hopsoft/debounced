@@ -1,11 +1,7 @@
 // All bubbling events
 // SEE: https://developer.mozilla.org/en-US/docs/Web/Events
 
-const wait = 200 // the number of milliseconds to wait
-const leading = false // fire event on the leading edge of the timeout.
-const trailing = true // fire event on the trailing edge of the timeout.
-
-const nativeBubblingEventNames = [
+export const nativeBubblingEventNames = [
   'DOMContentLoaded',
   'abort',
   'animationcancel',
@@ -68,10 +64,3 @@ const nativeBubblingEventNames = [
   'visibilitychange',
   'wheel'
 ]
-
-export const defaultOptions = { wait, leading, trailing }
-
-export const events = nativeBubblingEventNames.reduce((memo, name) => {
-  memo[name] = { ...defaultOptions }
-  return memo
-}, {})

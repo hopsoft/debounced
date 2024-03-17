@@ -1,6 +1,13 @@
-import { defaultOptions, events } from './events'
+import { nativeBubblingEventNames } from './events'
 
 let prefix = 'debounced'
+
+const defaultOptions = {
+  wait: 200, // ........ the number of milliseconds to wait
+  leading: false, // ... fire event on the leading edge of the timeout
+  trailing: true // .... fire event on the trailing edge of the timeout
+}
+
 const registeredEvents = {}
 const timeouts = {}
 
@@ -51,13 +58,22 @@ const buildDebounceEventHandler = (options = {}) => {
 }
 
 /**
+ * Unregisters an individual event from debouncing.
+ * @param {String} name - Name of the sourceEvent to unregister
+ */
+const unregisterEvent = name => {
+  document.removeEventListener(name, registeredEvents[name]?.handler)
+  delete registeredEvents[name]
+}
+
+/**
  * Registers an individual event for debouncing.
  * @note Events can be re-registered (replaces existing entry)
  * @param {String} name - Name of the sourceEvent to debounce
  * @param {Object} options - Debounce options
  */
 const registerEvent = (name, options = {}) => {
-  document.removeEventListener(name, registeredEvents[name]?.handler)
+  unregisterEvent(name)
   options = { ...defaultOptions, ...options }
   options.handler = buildDebounceEventHandler(options)
   registeredEvents[name] = options
@@ -65,10 +81,16 @@ const registerEvent = (name, options = {}) => {
 }
 
 /**
+ * Unregisters a list of events.
+ * @param {Array} eventNames - List of event names to unregister
+ */
+const unregister = (eventNames = []) => eventNames.forEach(name => unregisterEvent(name))
+
+/**
  * Initializes debounced events.
  *
  * @example
- *   initialize({
+ *   register({
  *     'change': { wait: 200, leading: false, trailing: true },
  *     'click': { wait: 200, leading: false, trailing: true },
  *     // more events...
@@ -76,16 +98,33 @@ const registerEvent = (name, options = {}) => {
  *
  * @param {Object} evts - Event options to register
  */
-const initialize = (evts = events) => {
-  prefix = evts.prefix || prefix
-  delete evts.prefix
-  for (const [name, options] of Object.entries(evts)) registerEvent(name, options)
+const register = (eventNames = [], options = {}) => {
+  if (!eventNames || eventNames.length === 0) eventNames = nativeBubblingEventNames
+  eventNames.forEach(name => registerEvent(name, options))
 }
 
 export default {
-  initialize,
+  initialize: register,
+  register,
+  unregister,
   registerEvent,
+  unregisterEvent,
+  get defaultEventNames() {
+    return [...nativeBubblingEventNames]
+  },
+  get defaultOptions() {
+    return { ...defaultOptions }
+  },
+  get prefix() {
+    return prefix
+  },
+  set prefix(value) {
+    prefix = value
+  },
   get registeredEvents() {
     return { ...registeredEvents }
+  },
+  get registeredEventNames() {
+    return Object.keys(registeredEvents)
   }
 }

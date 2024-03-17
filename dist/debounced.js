@@ -16,9 +16,6 @@ var __spreadValues = (a, b) => {
 };
 
 // src/events.js
-var wait = 200;
-var leading = false;
-var trailing = true;
 var nativeBubblingEventNames = [
   "DOMContentLoaded",
   "abort",
@@ -82,14 +79,17 @@ var nativeBubblingEventNames = [
   "visibilitychange",
   "wheel"
 ];
-var defaultOptions = { wait, leading, trailing };
-var events = nativeBubblingEventNames.reduce((memo, name) => {
-  memo[name] = __spreadValues({}, defaultOptions);
-  return memo;
-}, {});
 
 // src/index.js
 var prefix = "debounced";
+var defaultOptions = {
+  wait: 200,
+  // ........ the number of milliseconds to wait
+  leading: false,
+  // ... fire event on the leading edge of the timeout
+  trailing: true
+  // .... fire event on the trailing edge of the timeout
+};
 var registeredEvents = {};
 var timeouts = {};
 var dispatchDebouncedEvent = (sourceEvent, type) => {
@@ -103,37 +103,59 @@ var dispatchDebouncedEvent = (sourceEvent, type) => {
   return setTimeout(() => sourceEvent.target.dispatchEvent(debouncedEvent));
 };
 var buildDebounceEventHandler = (options = {}) => {
-  const { wait: wait2, leading: leading2, trailing: trailing2 } = __spreadValues(__spreadValues({}, defaultOptions), options);
+  const { wait, leading, trailing } = __spreadValues(__spreadValues({}, defaultOptions), options);
   return (event) => {
     clearTimeout(timeouts[event.target]);
-    if (leading2 && !timeouts[event.target])
+    if (leading && !timeouts[event.target])
       dispatchDebouncedEvent(event, "leading");
     timeouts[event.target] = setTimeout(() => {
       delete timeouts[event.target];
-      if (trailing2)
+      if (trailing)
         dispatchDebouncedEvent(event, "trailing");
-    }, wait2);
+    }, wait);
   };
 };
-var registerEvent = (name, options = {}) => {
+var unregisterEvent = (name) => {
   var _a;
   document.removeEventListener(name, (_a = registeredEvents[name]) == null ? void 0 : _a.handler);
+  delete registeredEvents[name];
+};
+var registerEvent = (name, options = {}) => {
+  unregisterEvent(name);
   options = __spreadValues(__spreadValues({}, defaultOptions), options);
   options.handler = buildDebounceEventHandler(options);
   registeredEvents[name] = options;
   document.addEventListener(name, options.handler);
 };
-var initialize = (evts = events) => {
-  prefix = evts.prefix || prefix;
-  delete evts.prefix;
-  for (const [name, options] of Object.entries(evts))
-    registerEvent(name, options);
+var unregister = (eventNames = []) => eventNames.forEach((name) => unregisterEvent(name));
+var register = (eventNames = [], options = {}) => {
+  if (!eventNames || eventNames.length === 0)
+    eventNames = nativeBubblingEventNames;
+  eventNames.forEach((name) => registerEvent(name, options));
 };
 var src_default = {
-  initialize,
+  initialize: register,
+  register,
+  unregister,
   registerEvent,
+  unregisterEvent,
+  get defaultEventNames() {
+    return [...nativeBubblingEventNames];
+  },
+  get defaultOptions() {
+    return __spreadValues({}, defaultOptions);
+  },
+  get prefix() {
+    return prefix;
+  },
+  set prefix(value) {
+    prefix = value;
+  },
   get registeredEvents() {
     return __spreadValues({}, registeredEvents);
+  },
+  get registeredEventNames() {
+    return Object.keys(registeredEvents);
   }
 };
 export {
