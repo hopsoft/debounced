@@ -81,7 +81,9 @@ debounced.initialize(['click', 'input', 'keydown'])
 // listen for debounced events
 document.addEventListener('debounced:input', event => { ... })
 document.getElementById('example').addEventListener('debounced:keydown', event => { ... })
-document.querySelectorAll('a').forEach(a => a.addEventListener('debounced:click', event => { ... }))
+document.querySelectorAll('a').forEach(a => {
+  a.addEventListener('debounced:click', event => { ... })
+})
 ```
 
 ## Usage
