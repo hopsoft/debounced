@@ -163,27 +163,27 @@ The source is small and well documented. [Learn more about the API here.](#todo)
 
 ## FAQ
 
-<b><kbd>Q</kbd></b> What are the default native events that bubble?
+**Q:** What are the default native events that bubble?
 
-<b><kbd>A</kbd></b> [View the list here](#todo) and learn more about these events at [MDN](https://developer.mozilla.org/en-US/docs/Web/Events).
-
----
-
-<b><kbd>Q</kbd></b> Can I register an event more than once?
-
-<b><kbd>A</kbd></b> **Yes**, event re-registration overwrites any existing registrations.
+**A:** [View the list here](#todo) and learn more about these events at [MDN](https://developer.mozilla.org/en-US/docs/Web/Events).
 
 ---
 
-<b><kbd>Q</kbd></b> Do I have to specify all options when registering an event?
+**Q:** Can I register an event more than once?
 
-<b><kbd>A</kbd></b> **No**, any omitted options will apply the defaults.
+**A:** **Yes**, event re-registration overwrites any existing registrations.
 
 ---
 
-<b><kbd>Q</kbd></b> Are importmaps supported?
+**Q:** Do I have to specify all options when registering an event?
 
-<b><kbd>A</kbd></b> **Yes**, this library is compatible with importmaps.
+**A:** **No**, any omitted options will apply the defaults.
+
+---
+
+**Q:** Are importmaps supported?
+
+**A:** **Yes**, this library is compatible with importmaps.
 
 ## Releasing
 
