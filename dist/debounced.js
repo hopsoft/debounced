@@ -117,10 +117,12 @@ var buildDebounceEventHandler = (options = {}) => {
   };
 };
 var registerEvent = (name, options = {}) => {
-  if (registeredEvents[name])
-    return;
-  registeredEvents[name] = __spreadValues(__spreadValues({}, defaultOptions), options);
-  document.addEventListener(name, (event) => buildDebounceEventHandler(event));
+  var _a;
+  document.removeEventListener(name, (_a = registeredEvents[name]) == null ? void 0 : _a.handler);
+  options = __spreadValues(__spreadValues({}, defaultOptions), options);
+  options.handler = buildDebounceEventHandler(options);
+  registeredEvents[name] = options;
+  document.addEventListener(name, options.handler);
 };
 var initialize = (evts = events) => {
   prefix = evts.prefix || prefix;
