@@ -64,6 +64,7 @@ const buildDebounceEventHandler = (options = {}) => {
 const unregisterEvent = name => {
   document.removeEventListener(name, registeredEvents[name]?.handler)
   delete registeredEvents[name]
+  return name
 }
 
 /**
@@ -78,13 +79,19 @@ const registerEvent = (name, options = {}) => {
   options.handler = buildDebounceEventHandler(options)
   registeredEvents[name] = options
   document.addEventListener(name, options.handler)
+  return { [name]: registeredEvents[name] }
 }
 
 /**
  * Unregisters a list of events.
- * @param {Array} eventNames - List of event names to unregister
+ * @param {Array<String>} eventNames - List of event names to unregister
+ * @returns {Array<String>} - List of event names that were unregistered
  */
-const unregister = (eventNames = []) => eventNames.forEach(name => unregisterEvent(name))
+const unregister = (eventNames = []) => {
+  const names = { ...eventNames }
+  eventNames.forEach(name => unregisterEvent(name))
+  return names
+}
 
 /**
  * Initializes debounced events.
@@ -101,6 +108,10 @@ const unregister = (eventNames = []) => eventNames.forEach(name => unregisterEve
 const register = (eventNames = [], options = {}) => {
   if (!eventNames || eventNames.length === 0) eventNames = nativeBubblingEventNames
   eventNames.forEach(name => registerEvent(name, options))
+  return eventNames.reduce((memo, name) => {
+    memo[name] = registeredEvents[name]
+    return memo
+  }, {})
 }
 
 export default {

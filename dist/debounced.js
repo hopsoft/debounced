@@ -119,6 +119,7 @@ var unregisterEvent = (name) => {
   var _a;
   document.removeEventListener(name, (_a = registeredEvents[name]) == null ? void 0 : _a.handler);
   delete registeredEvents[name];
+  return name;
 };
 var registerEvent = (name, options = {}) => {
   unregisterEvent(name);
@@ -126,12 +127,21 @@ var registerEvent = (name, options = {}) => {
   options.handler = buildDebounceEventHandler(options);
   registeredEvents[name] = options;
   document.addEventListener(name, options.handler);
+  return { [name]: registeredEvents[name] };
 };
-var unregister = (eventNames = []) => eventNames.forEach((name) => unregisterEvent(name));
+var unregister = (eventNames = []) => {
+  const names = __spreadValues({}, eventNames);
+  eventNames.forEach((name) => unregisterEvent(name));
+  return names;
+};
 var register = (eventNames = [], options = {}) => {
   if (!eventNames || eventNames.length === 0)
     eventNames = nativeBubblingEventNames;
   eventNames.forEach((name) => registerEvent(name, options));
+  return eventNames.reduce((memo, name) => {
+    memo[name] = registeredEvents[name];
+    return memo;
+  }, {});
 };
 var src_default = {
   initialize: register,

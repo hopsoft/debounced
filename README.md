@@ -142,6 +142,9 @@ debounced.unregisterEvent('keyup')
 
 // unregister a list of events
 debounced.unregister(['click', 'input', 'keydown'])
+
+// unregister all events
+debounced.unregister(debounced.registeredEventNames)
 ```
 
 ### Debounced Event Prefix
