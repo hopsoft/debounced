@@ -97,13 +97,18 @@ const unregister = (eventNames = []) => {
  * Initializes debounced events.
  *
  * @example
- *   register({
- *     'change': { wait: 200, leading: false, trailing: true },
- *     'click': { wait: 200, leading: false, trailing: true },
+ *   register([
+ *     'change',
+ *     'click'
  *     // more events...
+ *   ], {
+ *     wait: 200,
+ *     leading: false,
+ *     trailing: true
  *   })
  *
- * @param {Object} evts - Event options to register
+ * @param {Array<String>} eventNames - List of event names to register
+ * @param {Object} options - debounce options
  */
 const register = (eventNames = [], options = {}) => {
   if (!eventNames || eventNames.length === 0) eventNames = nativeBubblingEventNames
