@@ -100,18 +100,23 @@ var dispatchDebouncedEvent = (sourceEvent, type) => {
     composed,
     detail: { sourceEvent, type }
   });
-  return setTimeout(() => sourceEvent.target.dispatchEvent(debouncedEvent));
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      sourceEvent.target.dispatchEvent(debouncedEvent);
+      resolve();
+    }, 0);
+  });
 };
 var buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = __spreadValues(__spreadValues({}, defaultOptions), options);
-  return (event) => {
+  return async (event) => {
     clearTimeout(timeouts[event.target]);
     if (leading && !timeouts[event.target])
-      dispatchDebouncedEvent(event, "leading");
-    timeouts[event.target] = setTimeout(() => {
+      await dispatchDebouncedEvent(event, "leading");
+    timeouts[event.target] = setTimeout(async () => {
       delete timeouts[event.target];
       if (trailing)
-        dispatchDebouncedEvent(event, "trailing");
+        await dispatchDebouncedEvent(event, "trailing");
     }, wait);
   };
 };

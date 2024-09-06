@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debounced Tests</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/@testing-library/dom@8.20.0/dist/@testing-library/dom.umd.js"></script>
+</head>
+
+<body class="bg-gray-100 font-sans leading-normal tracking-normal" id="testBody">
+  <div class="container mx-auto p-8">
+    <h1 class="text-4xl font-bold mb-2 text-gray-800">Debounced Tests</h1>
+    <h2 class="text-2xl font-semibold mb-8 text-gray-600">AI-Generated Test Suite</h2>
+
+    <div id="instructions" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8 rounded">
+      <h2 class="font-bold text-lg mb-2">Instructions:</h2>
+      <ol class="list-decimal list-inside">
+        <li>Click "Run Tests" to start the test suite.</li>
+        <li>The results will be displayed below the test area.</li>
+        <li>To run the tests again, click "Reset" and then "Run Tests".</li>
+        <li>You can run the tests as many times as you want.</li>
+      </ol>
+    </div>
+
+    <div class="mb-8">
+      <button id="runTestsBtn" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-4">
+        Run Tests
+      </button>
+      <button id="resetBtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+        Reset
+      </button>
+    </div>
+
+    <!-- Replace the existing progress indicator with this -->
+    <div id="progressIndicator" class="hidden mb-4">
+      <div class="flex items-center">
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mr-4">
+          <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+        </div>
+        <span id="progressText" class="text-gray-700 font-medium">0%</span>
+      </div>
+    </div>
+
+    <div id="testArea" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <input id="testInput" type="text"
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4">
+      <button id="testButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+        Click Me
+      </button>
+      <div id="testScroll" class="h-24 overflow-auto border border-gray-300 p-2 mb-4">
+        <div class="h-48">Scroll me</div>
+      </div>
+      <div id="testMouse" class="w-24 h-24 bg-gray-300 flex items-center justify-center">
+        Mouse over me
+      </div>
+    </div>
+
+    <div id="testResults" class="mt-8 p-4 rounded"></div>
+  </div>
+
+  <style>
+    #testBody .animate-grow-shrink {
+      animation: none !important;
+    }
+  </style>
+
+  <script type="module">
+    import debounced from '/dist/debounced.js';
+    const { getByText, getByRole, fireEvent, waitFor } = window.TestingLibraryDom;
+
+    // Initialize debounced
+    debounced.initialize(debounced.defaultEventNames, { wait: 300, leading: false, trailing: true });
+    window.debounced = debounced;
+
+    async function runTests() {
+      const progressIndicator = document.getElementById('progressIndicator');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      progressIndicator.classList.remove('hidden');
+
+      const results = [];
+      const eventsToTest = debounced.defaultEventNames.filter(eventName => eventName !== 'abort');
+      const totalTests = eventsToTest.length;
+
+      for (let i = 0; i < totalTests; i++) {
+        const eventName = eventsToTest[i];
+        try {
+          await testEvent(eventName);
+          results.push(`✅ ${eventName} test passed`);
+        } catch (error) {
+          results.push(`❌ ${eventName} test failed: ${error.message}`);
+        }
+
+        // Update progress
+        const progress = ((i + 1) / totalTests) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressText.textContent = `${Math.round(progress)}%`;
+      }
+
+      progressIndicator.classList.add('hidden');
+      displayResults(results);
+    }
+
+    async function testEvent(eventName) {
+      return new Promise(async (resolve, reject) => {
+        const element = getElementForEvent(eventName);
+        let eventHandlerCalled = false;
+
+        const handler = (event) => {
+          console.log(`Debounced ${eventName} event fired`, event); // Debug log
+          eventHandlerCalled = true;
+        };
+
+        // Always listen on document for debounced events
+        document.addEventListener(`debounced:${eventName}`, handler);
+
+        console.log(`Testing ${eventName} event`); // Debug log
+
+        // For abort, add a listener to the element itself
+        if (eventName === 'abort') {
+          element.addEventListener('abort', (event) => {
+            console.log('Original abort event caught', event);
+          });
+        }
+
+        // Trigger the event multiple times to ensure debounce is working
+        for (let i = 0; i < 3; i++) {
+          await triggerEvent(element, eventName);
+          await new Promise(resolve => setTimeout(resolve, 50)); // Small delay between triggers
+        }
+
+        try {
+          await waitFor(() => {
+            if (!eventHandlerCalled) {
+              throw new Error('Event not fired yet');
+            }
+          }, { timeout: 1000 }); // Increased timeout
+          resolve();
+        } catch (error) {
+          console.error(`${eventName} test failed`, error); // Debug log
+          reject(new Error(`${eventName} handler not called after timeout`));
+        } finally {
+          document.removeEventListener(`debounced:${eventName}`, handler);
+        }
+      });
+    }
+
+    function getElementForEvent(eventName) {
+      switch (eventName) {
+        case 'input':
+        case 'change':
+          return getByRole(document.body, 'textbox');
+        case 'click':
+        case 'dblclick':
+          return getByText(document.body, 'Click Me');
+        case 'scroll':
+          return document.documentElement; // Use the root element for scroll
+        // Remove the case for 'abort'
+        default:
+          return getByText(document.body, 'Mouse over me');
+      }
+    }
+
+    async function triggerEvent(element, eventName) {
+      switch (eventName) {
+        case 'input':
+          fireEvent.input(element, { target: { value: 'test' } });
+          break;
+        case 'change':
+          fireEvent.change(element, { target: { value: 'test' } });
+          break;
+        case 'scroll':
+          // Trigger scroll event on document
+          document.documentElement.scrollTop = 100;
+          await new Promise(resolve => setTimeout(resolve, 0));
+          fireEvent.scroll(document);
+          break;
+        case 'mouseover':
+          fireEvent.mouseOver(element);
+          break;
+        case 'mouseout':
+          fireEvent.mouseOut(element);
+          break;
+        case 'mousemove':
+          fireEvent.mouseMove(element);
+          break;
+        case 'click':
+          fireEvent.click(element);
+          break;
+        case 'dblclick':
+          fireEvent.dblClick(element);
+          break;
+        default:
+          // For any other events, use the generic fireEvent method
+          fireEvent(element, new Event(eventName, { bubbles: true }));
+      }
+    }
+
+    function displayResults(results) {
+      const resultElement = document.getElementById('testResults');
+      resultElement.innerHTML = results.join('<br>');
+      resultElement.className = results.every(r => r.startsWith('✅'))
+        ? 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4'
+        : 'bg-red-100 border-l-4 border-red-500 text-red-700 p-4';
+    }
+
+    function resetTests() {
+      const resultElement = document.getElementById('testResults');
+      resultElement.innerHTML = '';
+      resultElement.className = '';
+      document.getElementById('progressIndicator').classList.add('hidden');
+    }
+
+    // Set up event listeners for buttons
+    getByText(document.body, 'Run Tests').addEventListener('click', runTests);
+    getByText(document.body, 'Reset').addEventListener('click', resetTests);
+
+    // Add this to the top of your script, after the imports
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'grow-shrink': 'growShrink 1.5s ease-in-out infinite',
+          },
+          keyframes: {
+            growShrink: {
+              '0%, 100%': { width: '0%' },
+              '50%': { width: '100%' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

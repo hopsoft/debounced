@@ -27,7 +27,12 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
 
   // @note Both leading and trailing debounced events are executed on the next tick of the event loop
   //       This allows the sourceEvent and its handlers to complete before the debounced event is dispatched
-  return setTimeout(() => sourceEvent.target.dispatchEvent(debouncedEvent))
+  return new Promise(resolve => {
+    setTimeout(() => {
+      sourceEvent.target.dispatchEvent(debouncedEvent)
+      resolve()
+    }, 0)
+  })
 }
 
 /**
@@ -40,19 +45,19 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
  */
 const buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = { ...defaultOptions, ...options }
-  return event => {
+  return async event => {
     clearTimeout(timeouts[event.target]) // reset timeout
 
     // dispatch leading debounced event
-    if (leading && !timeouts[event.target]) dispatchDebouncedEvent(event, 'leading')
+    if (leading && !timeouts[event.target]) await dispatchDebouncedEvent(event, 'leading')
 
     // NOTE: setTimeout returns a positive integer
     // SEE: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#return_value
-    timeouts[event.target] = setTimeout(() => {
+    timeouts[event.target] = setTimeout(async () => {
       delete timeouts[event.target] // cleanup
 
       // dispatch trailing debounced event
-      if (trailing) dispatchDebouncedEvent(event, 'trailing')
+      if (trailing) await dispatchDebouncedEvent(event, 'trailing')
     }, wait)
   }
 }
