@@ -31,7 +31,7 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
     setTimeout(() => {
       sourceEvent.target.dispatchEvent(debouncedEvent)
       resolve()
-    }, 0)
+    })
   })
 }
 

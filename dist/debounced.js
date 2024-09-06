@@ -104,7 +104,7 @@ var dispatchDebouncedEvent = (sourceEvent, type) => {
     setTimeout(() => {
       sourceEvent.target.dispatchEvent(debouncedEvent);
       resolve();
-    }, 0);
+    });
   });
 };
 var buildDebounceEventHandler = (options = {}) => {
