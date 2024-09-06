@@ -10,7 +10,7 @@
     "build": "esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
     "check": "prettier --check ./src",
     "format": "prettier --write ./src",
-    "serve": "http-server"
+    "test": "http-server -o test/index.html"
   },
   "devDependencies": {
     "esbuild": "^0.23.1",
