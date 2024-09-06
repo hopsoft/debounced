@@ -8,13 +8,13 @@
   "license": "MIT",
   "scripts": {
     "build": "esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
-    "prettier:check": "yarn run prettier --check --fail-on-errors ./src",
-    "prettier:write": "yarn run prettier --write ./src",
-    "standardize": "yarn run prettier:write"
+    "check": "prettier --check ./src",
+    "format": "prettier --write ./src",
+    "serve": "http-server"
   },
   "devDependencies": {
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.23.1",
+    "http-server": "^14.1.1",
     "prettier": "^3.2.5"
-  },
-  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
+  }
 }
