@@ -100,18 +100,21 @@ var dispatchDebouncedEvent = (sourceEvent, type) => {
     composed,
     detail: { sourceEvent, type }
   });
-  return setTimeout(() => sourceEvent.target.dispatchEvent(debouncedEvent));
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      sourceEvent.target.dispatchEvent(debouncedEvent);
+      resolve();
+    });
+  });
 };
 var buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = __spreadValues(__spreadValues({}, defaultOptions), options);
-  return (event) => {
+  return async (event) => {
     clearTimeout(timeouts[event.target]);
-    if (leading && !timeouts[event.target])
-      dispatchDebouncedEvent(event, "leading");
-    timeouts[event.target] = setTimeout(() => {
+    if (leading && !timeouts[event.target]) await dispatchDebouncedEvent(event, "leading");
+    timeouts[event.target] = setTimeout(async () => {
       delete timeouts[event.target];
-      if (trailing)
-        dispatchDebouncedEvent(event, "trailing");
+      if (trailing) await dispatchDebouncedEvent(event, "trailing");
     }, wait);
   };
 };
@@ -135,8 +138,7 @@ var unregister = (eventNames = []) => {
   return names;
 };
 var register = (eventNames = [], options = {}) => {
-  if (!eventNames || eventNames.length === 0)
-    eventNames = nativeBubblingEventNames;
+  if (!eventNames || eventNames.length === 0) eventNames = nativeBubblingEventNames;
   eventNames.forEach((name) => registerEvent(name, options));
   return eventNames.reduce((memo, name) => {
     memo[name] = registeredEvents[name];

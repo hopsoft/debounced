@@ -201,6 +201,17 @@ The source is small and well documented. [Learn more about the API here.](src/in
 
 **A:** **Yes**, this library is compatible with importmaps.
 
+## Testing
+
+Clone the repo and run the following.
+
+```sh
+npm install
+npm run format
+npm run build
+npm run test
+```
+
 ## Releasing
 
 1. Run `npm update` to pick up the latest dependencies
