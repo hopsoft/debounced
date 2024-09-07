@@ -1,55 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Debounced Tests</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@testing-library/dom@8.20.0/dist/@testing-library/dom.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@heroicons/vue@2.0.18/dist/solid.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           animation: {
-            'spin-slow': 'spin 1s linear infinite',
-          },
+            'spin-slow': 'spin 1s linear infinite'
+          }
         }
       }
     }
   </script>
+  <style>
+    #testBody .animate-grow-shrink {
+      animation: none !important;
+    }
+  </style>
 </head>
 
 <body class="bg-gray-100 font-sans leading-normal tracking-normal" data-testid="testBody">
   <div class="container mx-auto p-8">
     <h1 class="text-4xl font-bold mb-2 text-gray-800">Debounced Tests</h1>
-    <h2 class="text-2xl font-semibold mb-8 text-gray-600">AI-Generated Test Suite</h2>
+    <h2 class="text-2xl font-semibold mb-8 text-gray-600">AI Generated Test Suite</h2>
 
     <div data-testid="instructions" class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8 rounded">
       <h2 class="font-bold text-lg mb-2">Instructions:</h2>
       <ol class="list-decimal list-inside">
-        <li>Click "Run Tests" to start the test suite.</li>
-        <li>The results will be displayed below the test area.</li>
-        <li>To run the tests again, click "Reset" and then "Run Tests".</li>
-        <li>You can run the tests as many times as you want.</li>
+        <li>Click "Run Automated Tests" to start the comprehensive test suite.</li>
+        <li>The results will be displayed in real-time below.</li>
+        <li>To run the tests again, click "Reset" and then "Run Automated Tests".</li>
       </ol>
     </div>
 
     <div class="mb-8 flex">
       <button data-testid="runTestsBtn"
         class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-4 flex items-center">
-        <svg data-testid="playIcon" class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+        <svg data-testid="playIcon" class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
         </svg>
-        <svg data-testid="spinnerIcon" class="animate-spin h-5 w-5 mr-3 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        <svg data-testid="spinnerIcon" class="animate-spin h-5 w-5 mr-3 hidden" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
         </svg>
-        <span data-testid="runTestsBtnText">Run Tests</span>
+        <span data-testid="runTestsBtnText">Run Automated Tests</span>
       </button>
       <button data-testid="resetBtn" disabled
         class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded opacity-50 cursor-not-allowed flex items-center">
-        <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <svg class="h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+          stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
         </svg>
         Reset
@@ -65,288 +72,423 @@
       </div>
     </div>
 
-    <div data-testid="testArea" class="hidden bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <div data-testid="testResults" class="mt-8 p-4 rounded"></div>
+
+    <div data-testid="testArea" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+      <h3 class="text-xl font-semibold mb-2 text-gray-700">Test Area</h3>
+      <p class="text-sm text-gray-600 mb-4">Do not interact with this area while tests are running.</p>
       <input data-testid="testInput" type="text"
-        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4">
-      <button data-testid="testButton"></button>
+        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mb-4" />
+      <button data-testid="testButton">Test Button</button>
       <div data-testid="testScroll" class="h-24 overflow-auto border border-gray-300 p-2 mb-4">
         <div class="h-48"></div>
       </div>
-      <div data-testid="testMouse" class="w-24 h-24 bg-gray-300 flex items-center justify-center"></div>
+      <div data-testid="testMouse" class="w-24 h-24 bg-gray-300 flex items-center justify-center">Mouse Area</div>
     </div>
 
-    <div data-testid="testResults" class="mt-8 p-4 rounded"></div>
+    <!-- Add this just before the closing </div> of the container -->
+    <div class="mt-8">
+      <h3 class="text-xl font-semibold mb-4 text-gray-700">Scroll Test Area</h3>
+      <p class="text-sm text-gray-600 mb-4">This area is intentionally tall to allow for scroll testing.</p>
+      <div class="h-screen bg-gray-200 flex items-center justify-center text-gray-500">
+        Scroll down to test scroll events
+      </div>
+    </div>
+
+    <!-- Close the container div -->
   </div>
 
-  <style>
-    #testBody .animate-grow-shrink {
-      animation: none !important;
-    }
-  </style>
+  <!-- Add this outside and after the container div -->
+  <div class="h-screen bg-gray-300 flex items-center justify-center text-gray-500">
+    You've reached the bottom!
+  </div>
 
   <script type="module">
-    import debounced from '/dist/debounced.js';
-    const { getByTestId, fireEvent, waitFor } = window.TestingLibraryDom;
+    import debounced from '/dist/debounced.js'
+    import { nativeBubblingEventNames } from '/src/events.js'
 
-    debounced.initialize();
-    window.debounced = debounced;
+    const CheckIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>`
 
-    async function runTests() {
-      const runTestsBtn = getByTestId(document.body, 'runTestsBtn');
-      const runTestsBtnText = getByTestId(document.body, 'runTestsBtnText');
-      const playIcon = getByTestId(document.body, 'playIcon');
-      const spinnerIcon = getByTestId(document.body, 'spinnerIcon');
-      const resetBtn = getByTestId(document.body, 'resetBtn');
-      const resultElement = getByTestId(document.body, 'testResults');
+    const XMarkIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>`
+
+    const getByTestId = (container, testId) => container.querySelector(`[data-testid="${testId}"]`)
+
+    const logResult = (testResults, eventName, passed, message) => {
+      console.log(`${eventName}: ${passed ? 'PASS' : 'FAIL'} - ${message}`)
+      const result = document.createElement('div')
+      result.className = `flex items-center ${passed ? 'text-green-600' : 'text-red-600'} mb-2`
       
-      runTestsBtn.disabled = true;
-      runTestsBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      runTestsBtnText.textContent = 'Running...';
-      playIcon.classList.add('hidden');
-      spinnerIcon.classList.remove('hidden');
-      resetBtn.disabled = true;
+      const icon = passed ? CheckIcon : XMarkIcon
+      const iconSvg = new DOMParser().parseFromString(icon, 'image/svg+xml').documentElement
+      iconSvg.setAttribute('class', 'w-5 h-5 mr-2')
       
-      // Clear previous results
-      resultElement.innerHTML = '';
-      resultElement.className = 'mt-8 p-4 rounded';
+      result.appendChild(iconSvg)
       
-      const progressIndicator = getByTestId(document.body, 'progressIndicator');
-      const progressBar = getByTestId(document.body, 'progressBar');
-      const progressText = getByTestId(document.body, 'progressText');
-      progressIndicator.classList.remove('hidden');
-
-      const eventsToTest = debounced.defaultEventNames.filter(eventName => eventName !== 'abort');
-      const totalTests = eventsToTest.length;
-
-      let passedTests = 0;
-      let failedTests = 0;
-
-      try {
-        for (let i = 0; i < totalTests; i++) {
-          const eventName = eventsToTest[i];
-          try {
-            await testEvent(eventName);
-            displayResult(`${eventName} test passed`);
-            passedTests++;
-          } catch (error) {
-            displayResult(`${eventName} test failed: ${error.message}`);
-            failedTests++;
-          }
-
-          updateTestHeader(passedTests, failedTests);
-
-          // Add a small delay between tests
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-          // Update progress
-          const progress = ((i + 1) / totalTests) * 100;
-          progressBar.style.width = `${progress}%`;
-          progressText.textContent = `${Math.round(progress)}%`;
-        }
-      } finally {
-        runTestsBtn.disabled = false;
-        runTestsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        runTestsBtnText.textContent = 'Run Tests';
-        playIcon.classList.remove('hidden');
-        spinnerIcon.classList.add('hidden');
-        resetBtn.disabled = false;
-        resetBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
-
-      progressIndicator.classList.add('hidden');
-      updateResultsStyle();
+      const textSpan = document.createElement('span')
+      textSpan.textContent = `${eventName}: ${message}`
+      result.appendChild(textSpan)
+      
+      testResults.appendChild(result)
+      return passed
     }
 
-    function displayResult(result) {
-      const resultElement = getByTestId(document.body, 'testResults');
-      const resultItem = document.createElement('div');
-      resultItem.className = 'mb-1 flex items-center';
-      
-      const iconSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      iconSvg.setAttribute('class', 'h-5 w-5 mr-2');
-      iconSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      iconSvg.setAttribute('fill', 'none');
-      iconSvg.setAttribute('viewBox', '0 0 24 24');
-      iconSvg.setAttribute('stroke-width', '1.5');
-      iconSvg.setAttribute('stroke', 'currentColor');
-      
-      const iconPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      iconPath.setAttribute('stroke-linecap', 'round');
-      iconPath.setAttribute('stroke-linejoin', 'round');
-      
-      if (result.includes('passed')) {
-        iconSvg.classList.add('text-green-600');
-        iconPath.setAttribute('d', 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z');
+    const fireEvent = (element, eventName, options = {}) => {
+      const event = new Event(eventName, { bubbles: true, cancelable: true, ...options })
+      element.dispatchEvent(event)
+    }
+
+    const testEvent = async (testArea, testResults, eventName, fireEventFn) => {
+      console.log(`Testing ${eventName} event...`)
+      let eventCount = 0
+      let debouncedEventCount = 0
+
+      const eventHandler = () => {
+        eventCount++
+        console.log(`Native ${eventName} fired`)
+      }
+
+      const debouncedEventHandler = () => {
+        debouncedEventCount++
+        console.log(`Debounced ${eventName} fired`)
+      }
+
+      let testElement
+      if (eventName === 'scroll') {
+        testElement = window
       } else {
-        iconSvg.classList.add('text-red-600');
-        iconPath.setAttribute('d', 'M6 18L18 6M6 6l12 12');
-      }
-      
-      iconSvg.appendChild(iconPath);
-      resultItem.appendChild(iconSvg);
-      
-      const textSpan = document.createElement('span');
-      textSpan.textContent = result.replace(/^[✅❌]\s/, '');
-      resultItem.appendChild(textSpan);
-      
-      resultElement.appendChild(resultItem);
-    }
-
-    function updateTestHeader(passed, failed) {
-      const resultElement = getByTestId(document.body, 'testResults');
-      let headerElement = resultElement.querySelector('[data-testid="resultHeader"]');
-      
-      if (!headerElement) {
-        headerElement = document.createElement('div');
-        headerElement.setAttribute('data-testid', 'resultHeader');
-        headerElement.className = 'text-lg mb-4 flex space-x-4 font-mono';
-        resultElement.insertBefore(headerElement, resultElement.firstChild);
-      }
-      
-      const padCount = (count) => count.toString().padStart(2, '0');
-      
-      headerElement.innerHTML = `
-        <span class="${passed > 0 ? 'font-bold' : ''} text-green-600">Passed: ${padCount(passed)}</span>
-        <span class="${failed > 0 ? 'font-bold' : ''} text-red-600">Failed: ${padCount(failed)}</span>
-      `;
-    }
-
-    function updateResultsStyle() {
-      const resultElement = getByTestId(document.body, 'testResults');
-      const testResults = Array.from(resultElement.children).filter(child => 
-        child.getAttribute('data-testid') !== 'resultHeader'
-      );
-      const allPassed = testResults.every(child => 
-        child.textContent.includes('test passed')
-      );
-      resultElement.className = allPassed
-        ? 'mt-8 p-4 rounded bg-green-100 border-l-4 border-green-500 text-green-700'
-        : 'mt-8 p-4 rounded bg-red-100 border-l-4 border-red-500 text-red-700';
-    }
-
-    async function testEvent(eventName) {
-      return new Promise(async (resolve, reject) => {
-        const element = getElementForEvent(eventName);
-        let eventHandlerCalled = false;
-
-        const handler = (event) => {
-          console.log(`Debounced ${eventName} event fired`, event);
-          eventHandlerCalled = true;
-        };
-
-        document.addEventListener(`debounced:${eventName}`, handler);
-
-        try {
-          // Trigger the event multiple times to ensure debounce is working
-          for (let i = 0; i < 3; i++) {
-            await triggerEvent(element, eventName);
-            await new Promise(resolve => setTimeout(resolve, 50));
-          }
-
-          // Wait for the debounced event to fire
-          await waitFor(() => eventHandlerCalled, { timeout: 500 });
-          resolve();
-        } catch (error) {
-          console.error(`${eventName} test failed`, error);
-          reject(new Error(`${eventName} handler not called after timeout`));
-        } finally {
-          document.removeEventListener(`debounced:${eventName}`, handler);
+        switch (eventName) {
+          case 'click':
+          case 'mousedown':
+          case 'mouseup':
+          case 'dblclick':
+            testElement = getByTestId(testArea, 'testButton')
+            break
+          case 'mousemove':
+          case 'mouseenter':
+          case 'mouseleave':
+          case 'mouseover':
+          case 'mouseout':
+            testElement = getByTestId(testArea, 'testMouse')
+            break
+          case 'keydown':
+          case 'keyup':
+          case 'keypress':
+            testElement = getByTestId(testArea, 'testInput')
+            break
+          case 'input':
+          case 'change':
+            testElement = getByTestId(testArea, 'testInput')
+            break
+          default:
+            testElement = getByTestId(testArea, 'testInput')
         }
-      });
-    }
+      }
 
-    function getElementForEvent(eventName) {
-      switch (eventName) {
-        case 'input':
-        case 'change':
-          return getByTestId(document.body, 'testInput');
-        case 'click':
-        case 'dblclick':
-          return getByTestId(document.body, 'testButton');
-        case 'scroll':
-          return document.documentElement; // Use the root element for scroll
-        default:
-          return getByTestId(document.body, 'testMouse');
+      testElement.addEventListener(eventName, eventHandler)
+      testElement.addEventListener(`debounced:${eventName}`, debouncedEventHandler)
+
+      // Simulate event behavior based on type
+      if (['mousemove', 'mouseout', 'mouseover'].includes(eventName)) {
+        // Simulate continuous events for 500ms
+        const startTime = Date.now()
+        while (Date.now() - startTime < 500) {
+          fireEventFn(testElement)
+          await new Promise(resolve => setTimeout(resolve, 16)) // ~60fps
+        }
+      } else if (eventName === 'scroll') {
+        // Special handling for scroll event
+        const startTime = Date.now()
+        while (Date.now() - startTime < 500) {
+          window.scrollBy(0, 10)
+          await new Promise(resolve => setTimeout(resolve, 16)) // ~60fps
+        }
+      } else if (['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel'].includes(eventName)) {
+        // For transition events, we'll use a more robust approach
+        testElement.style.transition = 'all 0.3s'
+        testElement.style.backgroundColor = 'blue'
+        
+        await new Promise(resolve => {
+          const transitionEndHandler = () => {
+            testElement.removeEventListener('transitionend', transitionEndHandler)
+            resolve()
+          }
+          testElement.addEventListener('transitionend', transitionEndHandler)
+          
+          setTimeout(() => {
+            testElement.style.backgroundColor = 'green'
+          }, 50) // Delay to ensure the transition is recognized
+        })
+
+        // Additional delay to catch any late events
+        await new Promise(resolve => setTimeout(resolve, 400))
+      } else {
+        // For other events, fire 5 times with 100ms interval
+        for (let i = 0; i < 5; i++) {
+          fireEventFn(testElement)
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
+      }
+
+      // Wait for potential final debounced event
+      await new Promise(resolve => setTimeout(resolve, 300))
+
+      testElement.removeEventListener(eventName, eventHandler)
+      testElement.removeEventListener(`debounced:${eventName}`, debouncedEventHandler)
+
+      if (['mousemove', 'scroll', 'mouseout', 'mouseover'].includes(eventName)) {
+        return logResult(testResults, eventName, eventCount > debouncedEventCount && debouncedEventCount > 0, 
+          `Native events: ${eventCount}, Debounced events: ${debouncedEventCount}`)
+      } else if (['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel'].includes(eventName)) {
+        return logResult(testResults, eventName, eventCount > 0 && debouncedEventCount > 0, 
+          `Native events: ${eventCount}, Debounced events: ${debouncedEventCount}`)
+      } else {
+        return logResult(testResults, eventName, eventCount === 5 && debouncedEventCount === 1, 
+          `Native events: ${eventCount}, Debounced events: ${debouncedEventCount}`)
       }
     }
 
-    async function triggerEvent(element, eventName) {
-      switch (eventName) {
-        case 'input':
-          fireEvent.input(element, { target: { value: 'test' } });
-          break;
-        case 'change':
-          fireEvent.change(element, { target: { value: 'test' } });
-          break;
-        case 'scroll':
-          // Trigger scroll event on document
-          document.documentElement.scrollTop = 100;
-          await new Promise(resolve => setTimeout(resolve, 0));
-          fireEvent.scroll(document);
-          break;
-        case 'mouseover':
-          fireEvent.mouseOver(element);
-          break;
-        case 'mouseout':
-          fireEvent.mouseOut(element);
-          break;
-        case 'mousemove':
-          fireEvent.mouseMove(element);
-          break;
-        case 'click':
-          fireEvent.click(element);
-          break;
-        case 'dblclick':
-          fireEvent.dblClick(element);
-          break;
-        default:
-          // For any other events, use the generic fireEvent method
-          fireEvent(element, new Event(eventName, { bubbles: true }));
+    const runTests = async () => {
+      try {
+        console.log('Debounced object:', debounced)
+        console.log('Initializing debounced...')
+        debounced.initialize()
+        console.log('Debounced initialized')
+
+        const testArea = getByTestId(document.body, 'testArea')
+        const testResults = getByTestId(document.body, 'testResults')
+        
+        const tests = nativeBubblingEventNames.map(eventName => {
+          return { 
+            name: eventName,
+            run: async () => testEvent(testArea, testResults, eventName, async element => {
+              switch (eventName) {
+                case 'scroll':
+                  return window.scrollBy(0, 10)
+                case 'click':
+                case 'mousedown':
+                case 'mouseup':
+                case 'dblclick':
+                  return fireEvent(getByTestId(testArea, 'testButton'), eventName)
+                case 'mousemove':
+                case 'mouseenter':
+                case 'mouseleave':
+                case 'mouseover':
+                case 'mouseout':
+                  return fireEvent(getByTestId(testArea, 'testMouse'), eventName, { clientX: Math.random() * 100, clientY: Math.random() * 100 })
+                case 'keydown':
+                case 'keyup':
+                case 'keypress':
+                  return fireEvent(getByTestId(testArea, 'testInput'), eventName, { key: 'a', code: 'KeyA' })
+                case 'input':
+                case 'change':
+                  element.value = `test${Date.now()}`
+                  return fireEvent(element, eventName)
+                case 'transitionrun':
+                case 'transitionstart':
+                case 'transitionend':
+                case 'transitioncancel':
+                  // We don't need to do anything here now, as the testEvent function handles it
+                  return
+                default:
+                  return fireEvent(element, eventName)
+              }
+            })
+          }
+        })
+
+        // Randomize the order of tests
+        const shuffledTests = tests.sort(() => Math.random() - 0.5)
+
+        let passedTests = 0
+        let failedTests = 0
+
+        // Create and insert summary header at the beginning
+        const summaryHeader = document.createElement('div')
+        summaryHeader.className = 'bg-gray-200 p-4 mb-4 rounded sticky top-0'
+        summaryHeader.innerHTML = `
+          <h3 class="text-xl font-bold mb-2">Test Summary</h3>
+          <p>Total Tests: <span id="totalTests">${tests.length}</span></p>
+          <p id="passedTestsP" class="text-green-600 hidden">Passed Tests: <span id="passedTests">0</span></p>
+          <p id="failedTestsP" class="text-red-600 hidden">Failed Tests: <span id="failedTests">0</span></p>
+        `
+        testResults.insertBefore(summaryHeader, testResults.firstChild)
+
+        const updateTestCounts = (passed) => {
+          if (passed) {
+            passedTests++
+            document.getElementById('passedTests').textContent = passedTests
+            document.getElementById('passedTestsP').classList.remove('hidden')
+          } else {
+            failedTests++
+            document.getElementById('failedTests').textContent = failedTests
+            document.getElementById('failedTestsP').classList.remove('hidden')
+          }
+        }
+
+        for (const test of shuffledTests) {
+          const result = await test.run()
+          updateTestCounts(result)
+          
+          // Update progress bar
+          const progress = ((passedTests + failedTests) / tests.length) * 100
+          getByTestId(document.body, 'progressBar').style.width = `${progress}%`
+          getByTestId(document.body, 'progressText').textContent = `${Math.round(progress)}%`
+        }
+
+      } catch (error) {
+        console.error('Error in runTests:', error)
+        const testResults = getByTestId(document.body, 'testResults')
+        testResults.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`
       }
     }
 
-    function resetTests() {
-      const runTestsBtn = getByTestId(document.body, 'runTestsBtn');
-      const runTestsBtnText = getByTestId(document.body, 'runTestsBtnText');
-      const playIcon = getByTestId(document.body, 'playIcon');
-      const spinnerIcon = getByTestId(document.body, 'spinnerIcon');
-      const resetBtn = getByTestId(document.body, 'resetBtn');
-      const resultElement = getByTestId(document.body, 'testResults');
+    const runTestsBtn = getByTestId(document.body, 'runTestsBtn')
+    const resetBtn = getByTestId(document.body, 'resetBtn')
+    const testArea = getByTestId(document.body, 'testArea')
+    const progressIndicator = getByTestId(document.body, 'progressIndicator')
+    const testResults = getByTestId(document.body, 'testResults')
+
+    async function startTests() {
+      const playIcon = getByTestId(runTestsBtn, 'playIcon')
+      const spinnerIcon = getByTestId(runTestsBtn, 'spinnerIcon')
+      const runTestsBtnText = getByTestId(runTestsBtn, 'runTestsBtnText')
+
+      runTestsBtn.disabled = true
+      playIcon.classList.add('hidden')
+      spinnerIcon.classList.remove('hidden')
+      runTestsBtnText.textContent = 'Running Tests...'
+
+      // Don't hide testArea, but disable interaction
+      testArea.style.pointerEvents = 'none'
+      testArea.style.opacity = '0.5'
+
+      progressIndicator.classList.remove('hidden')
+      testResults.innerHTML = ''
+      await runTests()
+
+      runTestsBtn.disabled = false
+      playIcon.classList.remove('hidden')
+      spinnerIcon.classList.add('hidden')
+      runTestsBtnText.textContent = 'Run Automated Tests'
+
+      // Re-enable interaction with testArea
+      testArea.style.pointerEvents = 'auto'
+      testArea.style.opacity = '1'
+
+      resetBtn.disabled = false
+      resetBtn.classList.remove('opacity-50', 'cursor-not-allowed')
+    }
+
+    runTestsBtn.addEventListener('click', startTests)
+
+    // Add these lines near the top of the script, after the getByTestId function
+
+    let initialInputValue = '';
+    let initialInputStyle = '';
+    let initialButtonStyle = '';
+    let initialMouseAreaStyle = '';
+
+    // Add this function to capture initial states
+    const captureInitialStates = () => {
+      const testInput = getByTestId(document.body, 'testInput');
+      const testButton = getByTestId(document.body, 'testButton');
+      const testMouse = getByTestId(document.body, 'testMouse');
+
+      initialInputValue = testInput.value;
+      initialInputStyle = testInput.getAttribute('style') || '';
+      initialButtonStyle = testButton.getAttribute('style') || '';
+      initialMouseAreaStyle = testMouse.getAttribute('style') || '';
+    };
+
+    // Modify the reset button event listener
+    resetBtn.addEventListener('click', () => {
+      const testInput = getByTestId(document.body, 'testInput');
+      const testButton = getByTestId(document.body, 'testButton');
+      const testMouse = getByTestId(document.body, 'testMouse');
+
+      testArea.style.pointerEvents = 'auto';
+      testArea.style.opacity = '1';
+      progressIndicator.classList.add('hidden');
+      testResults.innerHTML = '';
       
+      // Reset input value and styles
+      testInput.value = initialInputValue;
+      testInput.setAttribute('style', initialInputStyle);
+      testButton.setAttribute('style', initialButtonStyle);
+      testMouse.setAttribute('style', initialMouseAreaStyle);
+
+      // Ensure transition styles are removed
+      [testInput, testButton, testMouse].forEach(element => {
+        element.style.transition = '';
+        element.style.backgroundColor = '';
+      });
+
       resetBtn.disabled = true;
       resetBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      runTestsBtn.disabled = false;
-      runTestsBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      runTestsBtnText.textContent = 'Run Tests';
-      playIcon.classList.remove('hidden');
-      spinnerIcon.classList.add('hidden');
-      
-      resultElement.innerHTML = '';
-      resultElement.className = 'mt-8 p-4 rounded';
-      getByTestId(document.body, 'progressIndicator').classList.add('hidden');
-    }
+    });
 
-    // Set up event listeners for buttons
-    getByTestId(document.body, 'runTestsBtn').addEventListener('click', runTests);
-    getByTestId(document.body, 'resetBtn').addEventListener('click', resetTests);
-    document.addEventListener('DOMContentLoaded', getByTestId(document.body, 'runTestsBtn').click());
+    // Modify the window load event listener
+    window.addEventListener('load', () => {
+      setupPersistentEventListeners();
+      debounced.initialize();
+      captureInitialStates(); // Capture initial states when the page loads
+    });
 
-    tailwind.config = {
-      theme: {
-        extend: {
-          animation: {
-            'grow-shrink': 'growShrink 1.5s ease-in-out infinite',
-          },
-          keyframes: {
-            growShrink: {
-              '0%, 100%': { width: '0%' },
-              '50%': { width: '100%' },
-            }
+    // Add this code block just before the runTests function
+
+    const setupPersistentEventListeners = () => {
+      const testArea = getByTestId(document.body, 'testArea')
+      nativeBubblingEventNames.forEach(eventName => {
+        let testElement
+        if (eventName === 'scroll') {
+          testElement = window
+        } else {
+          switch (eventName) {
+            case 'click':
+            case 'mousedown':
+            case 'mouseup':
+            case 'dblclick':
+              testElement = getByTestId(testArea, 'testButton')
+              break
+            case 'mousemove':
+            case 'mouseenter':
+            case 'mouseleave':
+            case 'mouseover':
+            case 'mouseout':
+              testElement = getByTestId(testArea, 'testMouse')
+              break
+            case 'keydown':
+            case 'keyup':
+            case 'keypress':
+            case 'input':
+            case 'change':
+              testElement = getByTestId(testArea, 'testInput')
+              break
+            default:
+              testElement = getByTestId(testArea, 'testInput')
           }
         }
-      }
+
+        testElement.addEventListener(`debounced:${eventName}`, () => {
+          console.log(`Debounced ${eventName} fired (non-automated test context)`)
+        })
+      })
     }
 
+    // Modify the existing code at the bottom of the file:
+
+    // Remove this line if it exists:
+    // window.addEventListener('load', startTests)
+
+    // Add this instead:
+    window.addEventListener('load', () => {
+      setupPersistentEventListeners()
+      debounced.initialize()
+    })
   </script>
 </body>
 

@@ -15,6 +15,9 @@ var __spreadValues = (a, b) => {
   return a;
 };
 
+// src/version.js
+var version_default = "1.0.2";
+
 // src/events.js
 var nativeBubblingEventNames = [
   "DOMContentLoaded",
@@ -100,21 +103,17 @@ var dispatchDebouncedEvent = (sourceEvent, type) => {
     composed,
     detail: { sourceEvent, type }
   });
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      sourceEvent.target.dispatchEvent(debouncedEvent);
-      resolve();
-    });
-  });
+  sourceEvent.target.dispatchEvent(debouncedEvent);
 };
 var buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = __spreadValues(__spreadValues({}, defaultOptions), options);
-  return async (event) => {
-    clearTimeout(timeouts[event.target]);
-    if (leading && !timeouts[event.target]) await dispatchDebouncedEvent(event, "leading");
-    timeouts[event.target] = setTimeout(async () => {
-      delete timeouts[event.target];
-      if (trailing) await dispatchDebouncedEvent(event, "trailing");
+  return (event) => {
+    const key = [event.type, event.target];
+    if (leading && !timeouts[key]) setTimeout(() => dispatchDebouncedEvent(event, "leading"));
+    clearTimeout(timeouts[key]);
+    timeouts[key] = setTimeout(() => {
+      if (trailing) dispatchDebouncedEvent(event, "trailing");
+      delete timeouts[key];
     }, wait);
   };
 };
@@ -168,6 +167,9 @@ var src_default = {
   },
   get registeredEventNames() {
     return Object.keys(registeredEvents);
+  },
+  get version() {
+    return version_default;
   }
 };
 export {

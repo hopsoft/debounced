@@ -26,11 +26,7 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
     composed,
     detail: { sourceEvent, type }
   })
-  try {
-    sourceEvent.target.dispatchEvent(debouncedEvent)
-  } catch (error) {
-    console.error(`Error in event handler for ${prefix}:${sourceEvent.type}!`, error)
-  }
+  sourceEvent.target.dispatchEvent(debouncedEvent)
 }
 
 /**
