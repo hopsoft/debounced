@@ -1,3 +1,4 @@
+import version from './version'
 import { nativeBubblingEventNames } from './events'
 
 let prefix = 'debounced'
@@ -15,6 +16,7 @@ const timeouts = {}
 /**
  * Event dispatcher used to trigger all custom debounced events.
  * @param {Event} sourceEvent - The original native event being debounced
+ * @param {String} type - The type of debounced event (leading, trailing)
  */
 const dispatchDebouncedEvent = (sourceEvent, type) => {
   const { bubbles, cancelable, composed } = sourceEvent
@@ -24,15 +26,11 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
     composed,
     detail: { sourceEvent, type }
   })
-
-  // @note Both leading and trailing debounced events are executed on the next tick of the event loop
-  //       This allows the sourceEvent and its handlers to complete before the debounced event is dispatched
-  return new Promise(resolve => {
-    setTimeout(() => {
-      sourceEvent.target.dispatchEvent(debouncedEvent)
-      resolve()
-    })
-  })
+  try {
+    sourceEvent.target.dispatchEvent(debouncedEvent)
+  } catch (error) {
+    console.error(`Error in event handler for ${prefix}:${sourceEvent.type}!`, error)
+  }
 }
 
 /**
@@ -45,19 +43,24 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
  */
 const buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = { ...defaultOptions, ...options }
-  return async event => {
-    clearTimeout(timeouts[event.target]) // reset timeout
+  return event => {
+    const key = [event.type, event.target]
+
+    // NOTE: Both leading and trailing debounced events are executed on the next tick of the event loop
+    //       This allows the sourceEvent and its handlers to complete before the debounced event is dispatched
 
     // dispatch leading debounced event
-    if (leading && !timeouts[event.target]) await dispatchDebouncedEvent(event, 'leading')
+    if (leading && !timeouts[key]) setTimeout(() => dispatchDebouncedEvent(event, 'leading'))
+
+    clearTimeout(timeouts[key]) // reset timeout
 
     // NOTE: setTimeout returns a positive integer
     // SEE: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#return_value
-    timeouts[event.target] = setTimeout(async () => {
-      delete timeouts[event.target] // cleanup
-
+    timeouts[key] = setTimeout(() => {
       // dispatch trailing debounced event
-      if (trailing) await dispatchDebouncedEvent(event, 'trailing')
+      if (trailing) dispatchDebouncedEvent(event, 'trailing')
+
+      delete timeouts[key] // cleanup
     }, wait)
   }
 }
@@ -117,6 +120,7 @@ const unregister = (eventNames = []) => {
  */
 const register = (eventNames = [], options = {}) => {
   if (!eventNames || eventNames.length === 0) eventNames = nativeBubblingEventNames
+
   eventNames.forEach(name => registerEvent(name, options))
   return eventNames.reduce((memo, name) => {
     memo[name] = registeredEvents[name]
@@ -147,5 +151,8 @@ export default {
   },
   get registeredEventNames() {
     return Object.keys(registeredEvents)
+  },
+  get version() {
+    return version
   }
 }
