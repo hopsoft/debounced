@@ -1,14 +1,13 @@
 {
   "name": "debounced",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Debounced versions of standard high frequency DOM events",
   "main": "src/index.js",
   "repository": "https://github.com/hopsoft/debounced",
   "author": "Nate Hopkins (hopsoft) <natehop@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
-    "check": "prettier --check ./src",
+    "build": "npm run format && esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
     "format": "prettier --write ./src",
     "test": "npm run format && npm run build && http-server -c-1 -o test/index.html"
   },
