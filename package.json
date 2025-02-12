@@ -12,7 +12,7 @@
     "test": "npm run format && npm run build && http-server -c-1 -o test/index.html"
   },
   "devDependencies": {
-    "esbuild": "^0.23.1",
+    "esbuild": "^0.25.0",
     "http-server": "^14.1.1",
     "prettier": "^3.2.5"
   }
