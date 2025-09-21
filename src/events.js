@@ -1,7 +1,16 @@
-// All bubbling events
+// All native DOM events that work with document-level event delegation
 // SEE: https://developer.mozilla.org/en-US/docs/Web/Events
+//
+// INCLUDED: Events that bubble OR can be captured via document listeners
+// - Most events bubble naturally and work with event delegation
+// - Some events (load, resize, scroll, etc.) don't bubble but can be captured
+// - Document-level listeners with capture=true work for all these events
+//
+// EXCLUDED (don't work with document-level delegation):
+// - focus/blur: Use focusin/focusout instead (which do bubble)
+// - mouseenter/mouseleave: Use mouseover/mouseout instead (which do bubble)
 
-export const nativeBubblingEventNames = [
+export const nativeDelegatableEvents = [
   'DOMContentLoaded',
   'abort',
   'animationcancel',
@@ -9,6 +18,9 @@ export const nativeBubblingEventNames = [
   'animationiteration',
   'animationstart',
   'auxclick',
+  'beforeunload',
+  'canplay',
+  'canplaythrough',
   'change',
   'click',
   'compositionend',
@@ -25,6 +37,9 @@ export const nativeBubblingEventNames = [
   'dragover',
   'dragstart',
   'drop',
+  'durationchange',
+  'emptied',
+  'ended',
   'error',
   'focusin',
   'focusout',
@@ -34,12 +49,20 @@ export const nativeBubblingEventNames = [
   'input',
   'keydown',
   'keyup',
+  'load',
+  'loadeddata',
+  'loadedmetadata',
+  'loadstart',
   'mousedown',
   'mousemove',
   'mouseout',
   'mouseover',
   'mouseup',
+  'orientationchange',
   'paste',
+  'pause',
+  'play',
+  'playing',
   'pointercancel',
   'pointerdown',
   'pointerlockchange',
@@ -49,10 +72,18 @@ export const nativeBubblingEventNames = [
   'pointerover',
   'pointerup',
   'popstate',
+  'progress',
+  'ratechange',
   'reset',
+  'resize',
   'scroll',
+  'seeked',
+  'seeking',
   'select',
+  'stalled',
   'submit',
+  'suspend',
+  'timeupdate',
   'touchcancel',
   'touchend',
   'touchmove',
@@ -61,6 +92,46 @@ export const nativeBubblingEventNames = [
   'transitionend',
   'transitionrun',
   'transitionstart',
+  'unload',
   'visibilitychange',
-  'wheel'
+  'volumechange',
+  'waiting',
+  'wheel',
+]
+
+// Events that can be listened to on window
+// Some are window-only, others also work with document delegation
+export const nativeWindowEvents = [
+  'afterprint',
+  'appinstalled',
+  'beforeinstallprompt',
+  'beforeprint',
+  'beforeunload',
+  'blur',
+  'devicemotion',
+  'deviceorientation',
+  'deviceorientationabsolute',
+  'focus',
+  'gamepadconnected',
+  'gamepaddisconnected',
+  'hashchange',
+  'languagechange',
+  'load',
+  'message',
+  'messageerror',
+  'offline',
+  'online',
+  'pagehide',
+  'pageshow',
+  'pageswap',
+  'popstate',
+  'rejectionhandled',
+  'resize',
+  'scroll',
+  'scrollsnapchange',
+  'scrollsnapchanging',
+  'storage',
+  'unhandledrejection',
+  'unload',
+  'visibilitychange',
 ]

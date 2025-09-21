@@ -1,16 +1,18 @@
 import version from './version'
-import { nativeBubblingEventNames } from './events'
+import {nativeDelegatableEvents, nativeWindowEvents} from './events'
 
 let prefix = 'debounced'
 
 const defaultOptions = {
   wait: 200, // ........ the number of milliseconds to wait
   leading: false, // ... fire event on the leading edge of the timeout
-  trailing: true // .... fire event on the trailing edge of the timeout
+  trailing: true, // .... fire event on the trailing edge of the timeout
 }
 
 const registeredEvents = {}
-const timeouts = {}
+const windowRegistrations = {}
+const documentRegistrations = {}
+const timeouts = new Map() // Map<Element, {[eventType]: timeoutId}>
 
 //
 /**
@@ -19,12 +21,12 @@ const timeouts = {}
  * @param {String} type - The type of debounced event (leading, trailing)
  */
 const dispatchDebouncedEvent = (sourceEvent, type) => {
-  const { bubbles, cancelable, composed } = sourceEvent
+  const {bubbles, cancelable, composed} = sourceEvent
   const debouncedEvent = new CustomEvent(`${prefix}:${sourceEvent.type}`, {
     bubbles,
     cancelable,
     composed,
-    detail: { sourceEvent, type }
+    detail: {sourceEvent, type},
   })
   sourceEvent.target.dispatchEvent(debouncedEvent)
 }
@@ -38,25 +40,29 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
  * @returns {Function} - Event handler that dispatches the debounced event(s)
  */
 const buildDebounceEventHandler = (options = {}) => {
-  const { wait, leading, trailing } = { ...defaultOptions, ...options }
+  const {wait, leading, trailing} = {...defaultOptions, ...options}
   return event => {
-    const key = [event.type, event.target]
+    if (!timeouts.has(event.target)) timeouts.set(event.target, {})
+    const elementTimeouts = timeouts.get(event.target)
 
     // NOTE: Both leading and trailing debounced events are executed on the next tick of the event loop
     //       This allows the sourceEvent and its handlers to complete before the debounced event is dispatched
 
     // dispatch leading debounced event
-    if (leading && !timeouts[key]) setTimeout(() => dispatchDebouncedEvent(event, 'leading'))
+    if (leading && !elementTimeouts[event.type]) setTimeout(() => dispatchDebouncedEvent(event, 'leading'))
 
-    clearTimeout(timeouts[key]) // reset timeout
+    clearTimeout(elementTimeouts[event.type]) // reset timeout
 
     // NOTE: setTimeout returns a positive integer
     // SEE: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#return_value
-    timeouts[key] = setTimeout(() => {
+    elementTimeouts[event.type] = setTimeout(() => {
       // dispatch trailing debounced event
       if (trailing) dispatchDebouncedEvent(event, 'trailing')
 
-      delete timeouts[key] // cleanup
+      // cleanup
+      delete elementTimeouts[event.type]
+      for (const _ in elementTimeouts) return // entries present
+      timeouts.delete(event.target) // entries empty
     }, wait)
   }
 }
@@ -66,7 +72,18 @@ const buildDebounceEventHandler = (options = {}) => {
  * @param {String} name - Name of the sourceEvent to unregister
  */
 const unregisterEvent = name => {
-  document.removeEventListener(name, registeredEvents[name]?.handler)
+  const handler = registeredEvents[name]?.handler
+
+  if (documentRegistrations[name]) {
+    document.removeEventListener(name, handler)
+    delete documentRegistrations[name]
+  }
+
+  if (windowRegistrations[name]) {
+    window.removeEventListener(name, handler)
+    delete windowRegistrations[name]
+  }
+
   delete registeredEvents[name]
   return name
 }
@@ -79,11 +96,30 @@ const unregisterEvent = name => {
  */
 const registerEvent = (name, options = {}) => {
   unregisterEvent(name)
-  options = { ...defaultOptions, ...options }
+  options = {...defaultOptions, ...options}
   options.handler = buildDebounceEventHandler(options)
   registeredEvents[name] = options
-  document.addEventListener(name, options.handler)
-  return { [name]: registeredEvents[name] }
+
+  const isDelegatable = nativeDelegatableEvents.includes(name)
+  const isWindow = nativeWindowEvents.includes(name)
+
+  if (isDelegatable || isWindow) {
+    if (isDelegatable) {
+      document.addEventListener(name, options.handler)
+      documentRegistrations[name] = options
+    }
+
+    if (isWindow) {
+      window.addEventListener(name, options.handler)
+      windowRegistrations[name] = options
+    }
+  } else {
+    // Default to document delegation for unrecognized events
+    document.addEventListener(name, options.handler)
+    documentRegistrations[name] = options
+  }
+
+  return {[name]: registeredEvents[name]}
 }
 
 /**
@@ -92,9 +128,8 @@ const registerEvent = (name, options = {}) => {
  * @returns {Array<String>} - List of event names that were unregistered
  */
 const unregister = (eventNames = []) => {
-  const names = { ...eventNames }
-  eventNames.forEach(name => unregisterEvent(name))
-  return names
+  eventNames.forEach(unregisterEvent)
+  return eventNames
 }
 
 /**
@@ -115,7 +150,7 @@ const unregister = (eventNames = []) => {
  * @param {Object} options - debounce options
  */
 const register = (eventNames = [], options = {}) => {
-  if (!eventNames || eventNames.length === 0) eventNames = nativeBubblingEventNames
+  if (!eventNames || eventNames.length === 0) eventNames = nativeDelegatableEvents
 
   eventNames.forEach(name => registerEvent(name, options))
   return eventNames.reduce((memo, name) => {
@@ -131,10 +166,10 @@ export default {
   registerEvent,
   unregisterEvent,
   get defaultEventNames() {
-    return [...nativeBubblingEventNames]
+    return [...nativeDelegatableEvents]
   },
   get defaultOptions() {
-    return { ...defaultOptions }
+    return {...defaultOptions}
   },
   get prefix() {
     return prefix
@@ -143,12 +178,12 @@ export default {
     prefix = value
   },
   get registeredEvents() {
-    return { ...registeredEvents }
+    return {...registeredEvents}
   },
   get registeredEventNames() {
     return Object.keys(registeredEvents)
   },
   get version() {
     return version
-  }
+  },
 }

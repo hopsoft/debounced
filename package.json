@@ -8,12 +8,15 @@
   "license": "MIT",
   "scripts": {
     "build": "npm run format && esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
-    "format": "prettier --write ./src",
-    "test": "npm run format && npm run build && http-server -c-1 -o test/index.html"
+    "format": "npm run toc && prettier --write ./src ./test package.json README.md",
+    "lint": "prettier --check ./src ./test *.json *.md",
+    "test": "npm run build && playwright test",
+    "test:ui": "npm run build && playwright test --ui",
+    "toc": "npx markdown-toc -i --maxdepth 2 README.md"
   },
   "devDependencies": {
-    "esbuild": "^0.23.1",
-    "http-server": "^14.1.1",
+    "@playwright/test": "^1.55.0",
+    "esbuild": "^0.25.10",
     "prettier": "^3.2.5"
   }
 }

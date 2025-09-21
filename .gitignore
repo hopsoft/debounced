@@ -1,1 +1,35 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Build output
+dist/debounced.js
+
+# Test output
+test-results/
+playwright-report/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*~
+
+# Claude Code session data
+.claude/
+CLAUDE.md
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env*
+
+# Temporary files
+*.tmp
+*.bak
+tags

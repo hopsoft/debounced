@@ -19,7 +19,7 @@ var __spreadValues = (a, b) => {
 var version_default = "1.0.2";
 
 // src/events.js
-var nativeBubblingEventNames = [
+var nativeDelegatableEvents = [
   "DOMContentLoaded",
   "abort",
   "animationcancel",
@@ -27,6 +27,9 @@ var nativeBubblingEventNames = [
   "animationiteration",
   "animationstart",
   "auxclick",
+  "beforeunload",
+  "canplay",
+  "canplaythrough",
   "change",
   "click",
   "compositionend",
@@ -43,6 +46,9 @@ var nativeBubblingEventNames = [
   "dragover",
   "dragstart",
   "drop",
+  "durationchange",
+  "emptied",
+  "ended",
   "error",
   "focusin",
   "focusout",
@@ -52,12 +58,20 @@ var nativeBubblingEventNames = [
   "input",
   "keydown",
   "keyup",
+  "load",
+  "loadeddata",
+  "loadedmetadata",
+  "loadstart",
   "mousedown",
   "mousemove",
   "mouseout",
   "mouseover",
   "mouseup",
+  "orientationchange",
   "paste",
+  "pause",
+  "play",
+  "playing",
   "pointercancel",
   "pointerdown",
   "pointerlockchange",
@@ -67,10 +81,18 @@ var nativeBubblingEventNames = [
   "pointerover",
   "pointerup",
   "popstate",
+  "progress",
+  "ratechange",
   "reset",
+  "resize",
   "scroll",
+  "seeked",
+  "seeking",
   "select",
+  "stalled",
   "submit",
+  "suspend",
+  "timeupdate",
   "touchcancel",
   "touchend",
   "touchmove",
@@ -79,8 +101,45 @@ var nativeBubblingEventNames = [
   "transitionend",
   "transitionrun",
   "transitionstart",
+  "unload",
   "visibilitychange",
+  "volumechange",
+  "waiting",
   "wheel"
+];
+var nativeWindowEvents = [
+  "afterprint",
+  "appinstalled",
+  "beforeinstallprompt",
+  "beforeprint",
+  "beforeunload",
+  "blur",
+  "devicemotion",
+  "deviceorientation",
+  "deviceorientationabsolute",
+  "focus",
+  "gamepadconnected",
+  "gamepaddisconnected",
+  "hashchange",
+  "languagechange",
+  "load",
+  "message",
+  "messageerror",
+  "offline",
+  "online",
+  "pagehide",
+  "pageshow",
+  "pageswap",
+  "popstate",
+  "rejectionhandled",
+  "resize",
+  "scroll",
+  "scrollsnapchange",
+  "scrollsnapchanging",
+  "storage",
+  "unhandledrejection",
+  "unload",
+  "visibilitychange"
 ];
 
 // src/index.js
@@ -94,10 +153,12 @@ var defaultOptions = {
   // .... fire event on the trailing edge of the timeout
 };
 var registeredEvents = {};
-var timeouts = {};
+var windowRegistrations = {};
+var documentRegistrations = {};
+var timeouts = /* @__PURE__ */ new Map();
 var dispatchDebouncedEvent = (sourceEvent, type) => {
   const { bubbles, cancelable, composed } = sourceEvent;
-  const debouncedEvent = new CustomEvent(`${prefix}:${sourceEvent.type}`, {
+  const debouncedEvent = new CustomEvent("".concat(prefix, ":").concat(sourceEvent.type), {
     bubbles,
     cancelable,
     composed,
@@ -108,18 +169,29 @@ var dispatchDebouncedEvent = (sourceEvent, type) => {
 var buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = __spreadValues(__spreadValues({}, defaultOptions), options);
   return (event) => {
-    const key = [event.type, event.target];
-    if (leading && !timeouts[key]) setTimeout(() => dispatchDebouncedEvent(event, "leading"));
-    clearTimeout(timeouts[key]);
-    timeouts[key] = setTimeout(() => {
+    if (!timeouts.has(event.target)) timeouts.set(event.target, {});
+    const elementTimeouts = timeouts.get(event.target);
+    if (leading && !elementTimeouts[event.type]) setTimeout(() => dispatchDebouncedEvent(event, "leading"));
+    clearTimeout(elementTimeouts[event.type]);
+    elementTimeouts[event.type] = setTimeout(() => {
       if (trailing) dispatchDebouncedEvent(event, "trailing");
-      delete timeouts[key];
+      delete elementTimeouts[event.type];
+      for (const _ in elementTimeouts) return;
+      timeouts.delete(event.target);
     }, wait);
   };
 };
 var unregisterEvent = (name) => {
   var _a;
-  document.removeEventListener(name, (_a = registeredEvents[name]) == null ? void 0 : _a.handler);
+  const handler = (_a = registeredEvents[name]) == null ? void 0 : _a.handler;
+  if (documentRegistrations[name]) {
+    document.removeEventListener(name, handler);
+    delete documentRegistrations[name];
+  }
+  if (windowRegistrations[name]) {
+    window.removeEventListener(name, handler);
+    delete windowRegistrations[name];
+  }
   delete registeredEvents[name];
   return name;
 };
@@ -128,30 +200,43 @@ var registerEvent = (name, options = {}) => {
   options = __spreadValues(__spreadValues({}, defaultOptions), options);
   options.handler = buildDebounceEventHandler(options);
   registeredEvents[name] = options;
-  document.addEventListener(name, options.handler);
+  const isDelegatable = nativeDelegatableEvents.includes(name);
+  const isWindow = nativeWindowEvents.includes(name);
+  if (isDelegatable || isWindow) {
+    if (isDelegatable) {
+      document.addEventListener(name, options.handler);
+      documentRegistrations[name] = options;
+    }
+    if (isWindow) {
+      window.addEventListener(name, options.handler);
+      windowRegistrations[name] = options;
+    }
+  } else {
+    document.addEventListener(name, options.handler);
+    documentRegistrations[name] = options;
+  }
   return { [name]: registeredEvents[name] };
 };
 var unregister = (eventNames = []) => {
-  const names = __spreadValues({}, eventNames);
-  eventNames.forEach((name) => unregisterEvent(name));
-  return names;
+  eventNames.forEach(unregisterEvent);
+  return eventNames;
 };
 var register = (eventNames = [], options = {}) => {
-  if (!eventNames || eventNames.length === 0) eventNames = nativeBubblingEventNames;
+  if (!eventNames || eventNames.length === 0) eventNames = nativeDelegatableEvents;
   eventNames.forEach((name) => registerEvent(name, options));
   return eventNames.reduce((memo, name) => {
     memo[name] = registeredEvents[name];
     return memo;
   }, {});
 };
-var src_default = {
+var index_default = {
   initialize: register,
   register,
   unregister,
   registerEvent,
   unregisterEvent,
   get defaultEventNames() {
-    return [...nativeBubblingEventNames];
+    return [...nativeDelegatableEvents];
   },
   get defaultOptions() {
     return __spreadValues({}, defaultOptions);
@@ -173,5 +258,5 @@ var src_default = {
   }
 };
 export {
-  src_default as default
+  index_default as default
 };

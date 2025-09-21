@@ -1,3 +1,15 @@
-*.md
-*.yml
-builds
+# Build output (generated, don't format)
+dist/
+
+# Dependencies
+node_modules/
+
+# Test output
+test-results/
+playwright-report/
+
+# Lock files (auto-generated)
+package-lock.json
+
+# License (shouldn't be formatted)
+LICENSE
