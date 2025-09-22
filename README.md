@@ -26,7 +26,7 @@ el.addEventListener('debounced:input', evt => `Do something with ${evt.target.va
 ```
 
 ```html
-<!-- Also works with every framework's native syntax -->
+<!-- Works with every framework -->
 
 <!-- Alpine.js -->
 <input @debounced:input="search = $event.target.value" x-model="search" />
@@ -84,6 +84,7 @@ Debounced provides consistent `debounced:` events that work identically across a
 - **Zero Dependencies** - Pure JavaScript, lightweight at 6KB minified
 - **Event Delegation** - Automatically works with dynamic elements
 - **Per-Element Timers** - Each element maintains independent debounce state
+- **Nested Scrollables** - Full support for individually scrollable elements
 - **Leading & Trailing** - Fire at start, end, or both (most frameworks only support trailing)
 
 ## Table of Contents
@@ -96,6 +97,7 @@ Debounced provides consistent `debounced:` events that work identically across a
 - [How It Works](#how-it-works)
 - [Basic Usage](#basic-usage)
 - [Window Events](#window-events)
+- [Nested Scrollable Elements](#nested-scrollable-elements)
 - [Timing Configuration](#timing-configuration)
 - [Event Management](#event-management)
 - [Leading vs Trailing Events](#leading-vs-trailing-events)
@@ -357,6 +359,17 @@ window.addEventListener('debounced:deviceorientation', adjust) // Device tilt
 | `storage`          | Spams on rapid localStorage changes  | Batches updates efficiently |
 | `devicemotion`     | Drains battery with constant updates | Optimizes for performance   |
 | `online`/`offline` | Multiple rapid-fire notifications    | Single clean state change   |
+
+## Nested Scrollable Elements
+
+Debounced fully supports scroll events on individually scrollable elements like sidebars, chat windows, and nested containers. Each element maintains its own independent debounce state, making it perfect for:
+
+- **Multi-pane layouts** - Independent scroll tracking for each pane
+- **Infinite scroll lists** - Debounce scroll events in specific containers
+- **Chat interfaces** - Track scroll position in message containers
+- **Code editors** - Monitor scroll in editor panes separately
+
+Simply add `debounced:scroll` listeners directly to any scrollable element - they work independently from each other and from the main page scroll.
 
 ## Timing Configuration
 
@@ -1020,8 +1033,11 @@ See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for development setup and guideli
 ```bash
 npm install
 npx playwright install
-npm test
+npm test              # Run 200+ comprehensive tests
+npm run test:visual   # Interactive visual test page
 ```
+
+The project includes a comprehensive test suite with 200+ tests covering all event types, edge cases, and browser compatibility. The visual test page provides real-time monitoring of event debouncing behavior.
 
 ### Testing
 
