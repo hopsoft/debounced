@@ -1,14 +1,16 @@
-// All bubbling events
+// Events that naturally bubble up through the DOM tree
 // SEE: https://developer.mozilla.org/en-US/docs/Web/Events
 
-export const nativeBubblingEventNames = [
+export const nativeBubblingEvents = [
   'DOMContentLoaded',
-  'abort',
   'animationcancel',
   'animationend',
   'animationiteration',
   'animationstart',
   'auxclick',
+  'beforeunload',
+  'canplay',
+  'canplaythrough',
   'change',
   'click',
   'compositionend',
@@ -25,7 +27,9 @@ export const nativeBubblingEventNames = [
   'dragover',
   'dragstart',
   'drop',
-  'error',
+  'durationchange',
+  'emptied',
+  'ended',
   'focusin',
   'focusout',
   'fullscreenchange',
@@ -39,7 +43,11 @@ export const nativeBubblingEventNames = [
   'mouseout',
   'mouseover',
   'mouseup',
+  'orientationchange',
   'paste',
+  'pause',
+  'play',
+  'playing',
   'pointercancel',
   'pointerdown',
   'pointerlockchange',
@@ -49,10 +57,18 @@ export const nativeBubblingEventNames = [
   'pointerover',
   'pointerup',
   'popstate',
+  'progress',
+  'ratechange',
   'reset',
+  'resize',
   'scroll',
+  'seeked',
+  'seeking',
   'select',
+  'stalled',
   'submit',
+  'suspend',
+  'timeupdate',
   'touchcancel',
   'touchend',
   'touchmove',
@@ -61,6 +77,69 @@ export const nativeBubblingEventNames = [
   'transitionend',
   'transitionrun',
   'transitionstart',
+  'unload',
   'visibilitychange',
-  'wheel'
+  'volumechange',
+  'waiting',
+  'wheel',
 ]
+
+// Events that don't bubble but can be captured by document during the capture phase
+// These require addEventListener with capture: true
+export const nativeCapturableEvents = [
+  'abort',
+  'blur',
+  'error',
+  'focus',
+  'load',
+  'loadeddata',
+  'loadedmetadata',
+  'loadstart',
+  'mouseenter',
+  'mouseleave',
+  'pointerenter',
+  'pointerleave',
+  'scroll',
+]
+
+// Combination of all delegatable events (bubbling + capturable)
+export const nativeDelegatableEvents = Array.from(new Set([...nativeBubblingEvents, ...nativeCapturableEvents])).sort()
+
+// Events that can be listened to on window
+// Some are window-only, others also work with document delegation
+export const nativeWindowEvents = Array.from(
+  new Set([
+    'afterprint',
+    'appinstalled',
+    'beforeinstallprompt',
+    'beforeprint',
+    'beforeunload',
+    'blur',
+    'devicemotion',
+    'deviceorientation',
+    'deviceorientationabsolute',
+    'error',
+    'focus',
+    'gamepadconnected',
+    'gamepaddisconnected',
+    'hashchange',
+    'languagechange',
+    'load',
+    'message',
+    'messageerror',
+    'offline',
+    'online',
+    'pagehide',
+    'pagereveal',
+    'pageshow',
+    'pageswap',
+    'popstate',
+    'rejectionhandled',
+    'resize',
+    'storage',
+    'unhandledrejection',
+    ...nativeBubblingEvents,
+  ])
+).sort()
+
+export const nativeEvents = Array.from(new Set([...nativeDelegatableEvents, ...nativeWindowEvents])).sort()
