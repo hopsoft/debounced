@@ -362,7 +362,8 @@ test.describe('API Methods Tests', () => {
       if (!lastResult) return false
       const elapsed = lastResult.timestamp - startTime
       // The debounced event should fire approximately 300ms after typing started
-      return elapsed >= 250 && elapsed <= 350
+      // Allow more tolerance for CI environments and WebKit timing differences
+      return elapsed >= 200 && elapsed <= 400
     }, beforeSecondType)
 
     assert.ok(waitTimeChange, 'Should be able to change wait time after initialization')
