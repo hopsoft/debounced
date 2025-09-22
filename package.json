@@ -7,7 +7,9 @@
   "author": "Nate Hopkins (hopsoft) <natehop@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "npm run format && esbuild src/index.js --bundle --format=esm --target=es2020,chrome79,edge44,firefox71,opera65,safari13 --outfile=dist/debounced.js",
+    "build": "npm run format && esbuild src/index.js --bundle --format=esm --target=es2020,chrome90,firefox88,safari14,edge90 --minify --sourcemap --tree-shaking=true --outfile=dist/debounced.js",
+    "build:dev": "esbuild src/index.js --bundle --format=esm --target=es2020 --sourcemap=inline --outfile=dist/debounced.js",
+    "build:analyze": "esbuild src/index.js --bundle --format=esm --target=es2020 --minify --metafile=meta.json --analyze --outfile=dist/debounced.js",
     "format": "npm run toc && prettier --write ./src ./test package.json README.md",
     "lint": "prettier --check ./src ./test *.json *.md",
     "test": "npm run build && playwright test",

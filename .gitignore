@@ -2,7 +2,8 @@
 node_modules/
 
 # Build output
-dist/debounced.js
+dist/
+meta.json
 
 # Test output
 test-results/
