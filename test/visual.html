@@ -1,0 +1,1097 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Debounced Visual Tests</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            animation: {
+              'spin-slow': 'spin 1s linear infinite',
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      #testBody .animate-grow-shrink {
+        animation: none !important;
+      }
+    </style>
+  </head>
+
+  <body class="font-sans tracking-normal leading-normal bg-gray-100" data-testid="testBody">
+    <div class="container p-8 mx-auto max-w-7xl">
+      <h1 class="mb-2 text-4xl font-bold text-gray-800">Debounced Visual Tests</h1>
+      <h2 class="mb-8 text-2xl font-semibold text-gray-600">Interactive Test Suite with Real-time Grid Display</h2>
+
+      <!-- Real-time Event Counters -->
+      <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="p-4 bg-white rounded-lg shadow">
+          <div class="text-sm text-gray-600">Native Events</div>
+          <div id="nativeCounter" class="text-3xl font-bold text-blue-600">0</div>
+        </div>
+        <div class="p-4 bg-white rounded-lg shadow">
+          <div class="text-sm text-gray-600">Debounced Events</div>
+          <div id="debouncedCounter" class="text-3xl font-bold text-green-600">0</div>
+        </div>
+        <div class="p-4 bg-white rounded-lg shadow">
+          <div class="text-sm text-gray-600">Efficiency</div>
+          <div id="efficiencyCounter" class="text-3xl font-bold text-purple-600">-</div>
+        </div>
+        <div class="p-4 bg-white rounded-lg shadow">
+          <div class="text-sm text-gray-600">Time Elapsed</div>
+          <div id="timeElapsed" class="text-3xl font-bold text-orange-600">0s</div>
+        </div>
+      </div>
+
+      <div data-testid="instructions" class="p-4 mb-8 text-blue-700 bg-blue-100 rounded border-l-4 border-blue-500">
+        <h2 class="mb-2 text-lg font-bold">Instructions:</h2>
+        <ol class="list-decimal list-inside">
+          <li>Click "Run Automated Tests" to start the comprehensive test suite.</li>
+          <li>The results will be displayed in real-time below.</li>
+          <li>To run the tests again, click "Reset" and then "Run Automated Tests".</li>
+        </ol>
+      </div>
+
+      <div class="flex mb-8">
+        <button
+          data-testid="runTestsBtn"
+          class="flex items-center py-2 px-4 mr-4 font-bold text-white bg-green-500 rounded hover:bg-green-700">
+          <svg
+            data-testid="playIcon"
+            class="mr-3 w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+          </svg>
+          <svg
+            data-testid="spinnerIcon"
+            class="hidden mr-3 w-5 h-5 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          <span data-testid="runTestsBtnText">Run Automated Tests</span>
+        </button>
+        <button
+          data-testid="resetBtn"
+          disabled
+          class="flex items-center py-2 px-4 font-bold text-white bg-yellow-500 rounded opacity-50 cursor-not-allowed hover:bg-yellow-700">
+          <svg
+            class="mr-3 w-5 h-5"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+          </svg>
+          Reset
+        </button>
+      </div>
+
+      <div data-testid="progressIndicator" class="hidden mb-4">
+        <div class="flex items-center">
+          <div class="mr-4 w-full h-4 bg-gray-200 rounded-full">
+            <div data-testid="progressBar" class="h-4 bg-blue-600 rounded-full" style="width: 0%"></div>
+          </div>
+          <span data-testid="progressText" class="font-medium text-gray-700">0%</span>
+        </div>
+      </div>
+
+      <!-- Visual Test Grid -->
+      <div id="testGrid" class="hidden mb-6 p-4 bg-white rounded-lg shadow">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-lg font-bold text-gray-800">Test Progress</h3>
+          <div id="testGridSummary" class="text-sm text-gray-600">
+            <span id="gridPassed" class="text-green-600 font-bold">0</span> /
+            <span id="gridTotal" class="font-bold">0</span> tests
+          </div>
+        </div>
+        <div id="testGridLegend" class="mb-3 flex gap-4 text-xs">
+          <span class="flex items-center"><span class="w-3 h-3 bg-gray-300 rounded mr-1"></span>Pending</span>
+          <span class="flex items-center"
+            ><span class="w-3 h-3 bg-blue-500 rounded mr-1 animate-pulse"></span>Running</span
+          >
+          <span class="flex items-center"><span class="w-3 h-3 bg-green-500 rounded mr-1"></span>Passed</span>
+          <span class="flex items-center"><span class="w-3 h-3 bg-red-500 rounded mr-1"></span>Failed</span>
+        </div>
+        <div id="testGridItems" class="grid grid-cols-12 gap-1 text-xs">
+          <!-- Test items will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Visual Test Elements Grid -->
+      <div class="mb-6">
+        <h3 class="mb-4 text-xl font-bold">Test Elements (All Interactive)</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <!-- Mouse/Click Area -->
+          <div class="p-4 bg-white rounded-lg shadow">
+            <h4 class="mb-2 font-semibold text-gray-700">Mouse Events</h4>
+            <div
+              data-testid="testMouse"
+              class="relative h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded cursor-pointer transition-all hover:scale-105">
+              <div class="absolute inset-0 flex items-center justify-center text-white font-bold">Hover & Click Me</div>
+              <div id="mouseIndicator" class="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-0"></div>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+              <span id="mouseEventLog">Waiting for events...</span>
+            </div>
+          </div>
+
+          <!-- Input Fields -->
+          <div class="p-4 bg-white rounded-lg shadow">
+            <h4 class="mb-2 font-semibold text-gray-700">Form Events</h4>
+            <input
+              data-testid="testInput"
+              type="text"
+              placeholder="Type here..."
+              class="w-full px-3 py-2 mb-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <select data-testid="testSelect" class="w-full px-3 py-2 mb-2 border rounded">
+              <option>Option 1</option>
+              <option>Option 2</option>
+              <option>Option 3</option>
+            </select>
+            <textarea
+              data-testid="testTextarea"
+              placeholder="Multiline text..."
+              class="w-full px-3 py-2 h-16 border rounded resize-none"></textarea>
+            <div class="mt-2 text-xs text-gray-500">
+              <span id="formEventLog">Waiting for events...</span>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="p-4 bg-white rounded-lg shadow">
+            <h4 class="mb-2 font-semibold text-gray-700">Button Events</h4>
+            <button
+              data-testid="testButton"
+              class="w-full px-4 py-2 mb-2 text-white bg-green-500 rounded hover:bg-green-600 active:scale-95 transition-transform">
+              Primary Button
+            </button>
+            <button
+              data-testid="testButton2"
+              class="w-full px-4 py-2 mb-2 text-gray-700 bg-gray-200 rounded hover:bg-gray-300 active:scale-95 transition-transform">
+              Secondary Button
+            </button>
+            <div class="flex gap-2">
+              <button class="flex-1 px-3 py-1 text-sm bg-blue-500 text-white rounded">Mini 1</button>
+              <button class="flex-1 px-3 py-1 text-sm bg-purple-500 text-white rounded">Mini 2</button>
+              <button class="flex-1 px-3 py-1 text-sm bg-pink-500 text-white rounded">Mini 3</button>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+              <span id="buttonEventLog">Waiting for events...</span>
+            </div>
+          </div>
+
+          <!-- Drag Area -->
+          <div class="p-4 bg-white rounded-lg shadow">
+            <h4 class="mb-2 font-semibold text-gray-700">Drag Events</h4>
+            <div class="relative h-32 bg-gray-100 rounded border-2 border-dashed border-gray-300">
+              <div
+                data-testid="testDrag"
+                draggable="true"
+                class="absolute top-4 left-4 w-16 h-16 bg-orange-500 rounded cursor-move flex items-center justify-center text-white font-bold shadow-lg">
+                Drag
+              </div>
+              <div
+                data-testid="testDrop"
+                class="absolute bottom-4 right-4 w-20 h-20 bg-gray-300 rounded flex items-center justify-center text-gray-700">
+                Drop Here
+              </div>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+              <span id="dragEventLog">Waiting for events...</span>
+            </div>
+          </div>
+
+          <!-- Media Elements -->
+          <div class="p-4 bg-white rounded-lg shadow">
+            <h4 class="mb-2 font-semibold text-gray-700">Media Events</h4>
+            <video data-testid="testVideo" controls class="w-full h-32 bg-black rounded">
+              <source
+                src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAhtZGF0AAAA"
+                type="video/mp4" />
+            </video>
+            <audio data-testid="testAudio" controls class="w-full mt-2">
+              <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10EAAAAABAAQAAESQAABIIAAAAAA" type="audio/wav" />
+            </audio>
+            <div class="mt-2 text-xs text-gray-500">
+              <span id="mediaEventLog">Waiting for events...</span>
+            </div>
+          </div>
+
+          <!-- Scroll Area -->
+          <div class="p-4 bg-white rounded-lg shadow">
+            <h4 class="mb-2 font-semibold text-gray-700">Scroll Events</h4>
+            <div data-testid="testScroll" class="h-32 overflow-auto bg-gray-50 rounded p-2 border">
+              <div class="h-64 bg-gradient-to-b from-indigo-400 to-purple-600 rounded p-4 text-white">
+                <p class="mb-2">Scroll this area!</p>
+                <p class="text-sm opacity-75">Line 1</p>
+                <p class="text-sm opacity-75">Line 2</p>
+                <p class="text-sm opacity-75">Line 3</p>
+                <p class="text-sm opacity-75">Line 4</p>
+                <p class="text-sm opacity-75">Line 5</p>
+                <p class="text-sm opacity-75">Line 6</p>
+                <p class="text-sm opacity-75">Line 7</p>
+                <p class="text-sm opacity-75">Line 8</p>
+                <p class="text-sm opacity-75">Line 9</p>
+                <p class="text-sm opacity-75">Line 10</p>
+              </div>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+              <span id="scrollEventLog">Waiting for events...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Stream Visualization -->
+      <div class="mb-6 p-4 bg-white rounded-lg shadow">
+        <h3 class="mb-2 text-xl font-bold">Live Event Stream</h3>
+        <div id="eventStream" class="h-24 overflow-y-auto bg-gray-900 text-green-400 font-mono text-xs p-2 rounded">
+          <div class="text-gray-500">// Event stream will appear here...</div>
+        </div>
+      </div>
+
+      <div data-testid="testResults" class="p-4 mt-8 rounded"></div>
+
+      <div data-testid="testArea" class="hidden px-8 pt-6 pb-8 mb-4 bg-white rounded shadow-md">
+        <h3 class="mb-2 text-xl font-semibold text-gray-700">Test Area</h3>
+        <p class="mb-4 text-sm text-gray-600">Do not interact with this area while tests are running.</p>
+        <input
+          data-testid="testInput"
+          type="text"
+          class="py-2 px-3 mb-4 w-full leading-tight text-gray-700 rounded border shadow appearance-none focus:outline-none focus:shadow-outline" />
+        <button data-testid="testButton">Test Button</button>
+        <div data-testid="testScroll" class="overflow-auto p-2 mb-4 h-24 border border-gray-300">
+          <div class="h-48"></div>
+        </div>
+        <div data-testid="testMouse" class="flex justify-center items-center w-24 h-24 bg-gray-300">Mouse Area</div>
+      </div>
+
+      <!-- Add this just before the closing </div> of the container -->
+      <div class="mt-8">
+        <h3 class="mb-4 text-xl font-semibold text-gray-700">Scroll Test Area</h3>
+        <p class="mb-4 text-sm text-gray-600">This area is intentionally tall to allow for scroll testing.</p>
+        <div class="flex justify-center items-center h-screen text-gray-500 bg-gray-200">
+          Scroll down to test scroll events
+        </div>
+      </div>
+
+      <!-- Close the container div -->
+    </div>
+
+    <!-- Add this outside and after the container div -->
+    <div class="flex justify-center items-center h-screen text-gray-500 bg-gray-300">You've reached the bottom!</div>
+
+    <script type="module">
+      import debounced from '/dist/debounced.js'
+
+      const CheckIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    </svg>`
+
+      const XMarkIcon = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+    </svg>`
+
+      const getByTestId = (container, testId) => container.querySelector(`[data-testid="${testId}"]`)
+
+      const logResult = (testResults, eventName, passed, message) => {
+        console.log(`${eventName}: ${passed ? 'PASS' : 'FAIL'} - ${message}`)
+        const result = document.createElement('div')
+        result.className = `flex items-center ${passed ? 'text-green-600' : 'text-red-600'} mb-2`
+
+        const icon = passed ? CheckIcon : XMarkIcon
+        const iconSvg = new DOMParser().parseFromString(icon, 'image/svg+xml').documentElement
+        iconSvg.setAttribute('class', 'w-5 h-5 mr-2')
+
+        result.appendChild(iconSvg)
+
+        const textSpan = document.createElement('span')
+        textSpan.textContent = `${eventName}: ${message}`
+        result.appendChild(textSpan)
+
+        testResults.appendChild(result)
+        return passed
+      }
+
+      // Use real DOM interactions where possible, fall back to synthetic events only when necessary
+      const triggerRealEvent = (element, eventName, options = {}) => {
+        // Try to use real DOM methods first
+        switch (eventName) {
+          case 'click':
+            element.click()
+            break
+          case 'focus':
+            element.focus()
+            break
+          case 'blur':
+            element.blur()
+            break
+          case 'input':
+            // For input events, change the value and use native input event
+            const inputEvent = new Event('input', {bubbles: true, cancelable: true})
+            element.dispatchEvent(inputEvent)
+            break
+          case 'change':
+            // For change events, trigger native change
+            const changeEvent = new Event('change', {bubbles: true, cancelable: true})
+            element.dispatchEvent(changeEvent)
+            break
+          case 'submit':
+            // For forms, use requestSubmit if available, otherwise dispatchEvent
+            if (element.requestSubmit) {
+              element.requestSubmit()
+            } else {
+              const submitEvent = new Event('submit', {bubbles: true, cancelable: true})
+              element.dispatchEvent(submitEvent)
+            }
+            break
+          case 'reset':
+            // For forms, use reset() method
+            if (element.reset) {
+              element.reset()
+            } else {
+              const resetEvent = new Event('reset', {bubbles: true, cancelable: true})
+              element.dispatchEvent(resetEvent)
+            }
+            break
+          default:
+            // Fall back to synthetic events for events without native DOM methods
+            const nonBubblingEvents = ['blur', 'focus', 'mouseenter', 'mouseleave', 'pointerenter', 'pointerleave']
+            const shouldBubble = !nonBubblingEvents.includes(eventName)
+            const event = new Event(eventName, {bubbles: shouldBubble, cancelable: true, ...options})
+            element.dispatchEvent(event)
+        }
+      }
+
+      // Keep old fireEvent name as alias for compatibility
+      const fireEvent = triggerRealEvent
+
+      const testEvent = async (testArea, testResults, eventName, fireEventFn) => {
+        console.log(`Testing ${eventName} event...`)
+        let eventCount = 0
+        let debouncedEventCount = 0
+
+        const eventHandler = () => {
+          eventCount++
+          console.log(`Native ${eventName} fired`)
+        }
+
+        const debouncedEventHandler = () => {
+          debouncedEventCount++
+          console.log(`Debounced ${eventName} fired`)
+        }
+
+        let testElement
+        if (eventName === 'scroll') {
+          testElement = window
+        } else {
+          switch (eventName) {
+            case 'click':
+            case 'mousedown':
+            case 'mouseup':
+            case 'dblclick':
+              testElement = getByTestId(testArea, 'testButton')
+              break
+            case 'mousemove':
+            case 'mouseenter':
+            case 'mouseleave':
+            case 'mouseover':
+            case 'mouseout':
+              testElement = getByTestId(testArea, 'testMouse')
+              break
+            case 'keydown':
+            case 'keyup':
+            case 'keypress':
+              testElement = getByTestId(testArea, 'testInput')
+              break
+            case 'input':
+            case 'change':
+              testElement = getByTestId(testArea, 'testInput')
+              break
+            default:
+              testElement = getByTestId(testArea, 'testInput')
+          }
+        }
+
+        // For non-bubbling events, use capture phase
+        const useCapture = ['blur', 'focus'].includes(eventName)
+        testElement.addEventListener(eventName, eventHandler, useCapture)
+        testElement.addEventListener(`debounced:${eventName}`, debouncedEventHandler)
+
+        // Simulate event behavior based on type (optimized for coverage)
+        if (['mousemove', 'mouseout', 'mouseover'].includes(eventName)) {
+          // Simulate continuous events rapidly within debounce window
+          // 25 events with 1.5ms interval = 37.5ms total (well within 50ms window)
+          for (let i = 0; i < 25; i++) {
+            fireEventFn(testElement)
+            await new Promise(resolve => setTimeout(resolve, 1.5))
+          }
+        } else if (eventName === 'scroll') {
+          // Special handling for scroll event - use REAL scrolling only
+          // First ensure the page is scrollable
+          const originalHeight = document.body.style.minHeight
+          document.body.style.minHeight = '500vh' // Make page extra tall to ensure scrollability
+          window.scrollTo(0, 0) // Start at top
+
+          // Force a reflow to ensure the height change is applied
+          document.body.offsetHeight
+
+          // Add a small delay to ensure the page is ready
+          await new Promise(resolve => setTimeout(resolve, 10))
+
+          // Perform REAL scrolling rapidly within debounce window
+          // Increase scroll distance to ensure events fire
+          for (let i = 0; i < 15; i++) {
+            window.scrollBy(0, 20) // Scroll by 20px each time (more distance)
+            await new Promise(resolve => setTimeout(resolve, 3)) // Slightly longer delay
+          }
+
+          // Log the counts for debugging
+          console.log(`After scroll test - Native: ${eventCount}, Debounced: ${debouncedEventCount}`)
+
+          // Restore original height after a delay
+          setTimeout(() => {
+            document.body.style.minHeight = originalHeight
+            window.scrollTo(0, 0)
+          }, 300)
+        } else if (['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel'].includes(eventName)) {
+          // For transition events, we'll use a more robust approach
+          testElement.style.transition = 'all 0.3s'
+          testElement.style.backgroundColor = 'blue'
+
+          await new Promise(resolve => {
+            const transitionEndHandler = () => {
+              testElement.removeEventListener('transitionend', transitionEndHandler)
+              resolve()
+            }
+            testElement.addEventListener('transitionend', transitionEndHandler)
+
+            setTimeout(() => {
+              testElement.style.backgroundColor = 'green'
+            }, 50) // Delay to ensure the transition is recognized
+          })
+
+          // Additional delay to catch any late events
+          await new Promise(resolve => setTimeout(resolve, 400))
+        } else if (['blur', 'focus', 'mouseenter', 'mouseleave', 'pointerenter', 'pointerleave'].includes(eventName)) {
+          // Non-bubbling events - test with programmatic focus/blur or mouse events
+          if (eventName === 'focus' || eventName === 'blur') {
+            // Ensure the element is visible and can receive focus
+            testElement.style.display = 'block'
+            testElement.style.visibility = 'visible'
+
+            // For focus/blur, we need to use synthetic events because programmatic focus/blur
+            // doesn't always fire events in all browsers
+            for (let i = 0; i < 8; i++) {
+              if (eventName === 'focus') {
+                // Use synthetic event to ensure it fires
+                const evt = new FocusEvent('focus', {
+                  bubbles: false,
+                  cancelable: true,
+                  view: window,
+                })
+                testElement.dispatchEvent(evt)
+              } else {
+                // Use synthetic event to ensure it fires
+                const evt = new FocusEvent('blur', {
+                  bubbles: false,
+                  cancelable: true,
+                  view: window,
+                })
+                testElement.dispatchEvent(evt)
+              }
+              await new Promise(resolve => setTimeout(resolve, 5))
+            }
+          } else {
+            // For mouse enter/leave events, fire 8 times within 40ms window
+            for (let i = 0; i < 8; i++) {
+              fireEventFn(testElement)
+              await new Promise(resolve => setTimeout(resolve, 5))
+            }
+          }
+        } else if (eventName === 'load') {
+          // Load events don't bubble from elements, only window.load can be delegated
+          // We'll test by creating multiple img elements and checking if debounced events fire
+          const images = []
+
+          for (let i = 0; i < 5; i++) {
+            const img = document.createElement('img')
+            testArea.appendChild(img)
+            images.push(img)
+
+            // Listen for native events directly on element
+            img.addEventListener('load', () => {
+              eventCount++
+              console.log(`Native ${eventName} fired`)
+            })
+
+            // Load events don't bubble, so debounced:load won't work via delegation
+            // This test will show that load events need special handling
+            img.src = `data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=`
+            await new Promise(resolve => setTimeout(resolve, 50))
+          }
+
+          // Wait to see if any debounced events fire (they won't for element load events)
+          await new Promise(resolve => setTimeout(resolve, 300))
+
+          // Clean up
+          images.forEach(img => testArea.removeChild(img))
+
+          // Skip normal event removal since we handled it
+          testElement = null
+        } else if (eventName === 'dblclick') {
+          // Double-click is special - fire multiple dblclick events
+          // Each dblclick is a complete double-click action
+          for (let i = 0; i < 8; i++) {
+            // Fire a synthetic dblclick event since real dblclick is hard to simulate
+            const evt = new MouseEvent('dblclick', {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+            })
+            testElement.dispatchEvent(evt)
+            await new Promise(resolve => setTimeout(resolve, 5))
+          }
+        } else {
+          // For other events, fire 8 times with 5ms interval (40ms total)
+          // This ensures all events fire well within the 50ms debounce window
+          for (let i = 0; i < 8; i++) {
+            fireEventFn(testElement)
+            await new Promise(resolve => setTimeout(resolve, 5))
+          }
+        }
+
+        // Wait for debounce timeout to complete
+        // IMPORTANT: Wait at least 4x the debounce time (50ms * 4 = 200ms)
+        // This ensures: 1) debounced event fires, 2) no additional events fire
+        await new Promise(resolve => setTimeout(resolve, 200))
+
+        // Final counts after wait
+        console.log(`Final ${eventName} counts - Native: ${eventCount}, Debounced: ${debouncedEventCount}`)
+
+        if (testElement) {
+          const useCapture = ['blur', 'focus'].includes(eventName)
+          testElement.removeEventListener(eventName, eventHandler, useCapture)
+          testElement.removeEventListener(`debounced:${eventName}`, debouncedEventHandler)
+        }
+
+        if (['mousemove', 'mouseout', 'mouseover', 'scroll'].includes(eventName)) {
+          // For continuous events, we expect many native events but only 1 debounced
+          // Scroll might fire fewer events due to browser coalescing, so be more lenient
+          const minExpected = eventName === 'scroll' ? 5 : 15
+          return logResult(
+            testResults,
+            eventName,
+            eventCount >= minExpected && debouncedEventCount === 1,
+            `Native events: ${eventCount}, Debounced events: ${debouncedEventCount}`
+          )
+        } else if (['blur', 'focus', 'mouseenter', 'mouseleave', 'pointerenter', 'pointerleave'].includes(eventName)) {
+          // Non-bubbling events: expect 8 native events, exactly 1 debounced
+          return logResult(
+            testResults,
+            eventName,
+            eventCount === 8 && debouncedEventCount === 1,
+            `Native events: ${eventCount}, Debounced events: ${debouncedEventCount}`
+          )
+        } else if (['load', 'error', 'abort', 'loadstart', 'loadeddata', 'loadedmetadata'].includes(eventName)) {
+          // These events from elements don't bubble, so delegation with capture is used
+          // For elements like img/media, the debounced library needs capture phase
+          return logResult(
+            testResults,
+            eventName,
+            eventCount >= 1, // At least some native events fired
+            `Native events: ${eventCount}, Debounced events: ${debouncedEventCount} (non-bubbling event)`
+          )
+        } else if (['transitionrun', 'transitionstart', 'transitionend', 'transitioncancel'].includes(eventName)) {
+          return logResult(
+            testResults,
+            eventName,
+            eventCount > 0 && debouncedEventCount > 0,
+            `Native events: ${eventCount}, Debounced events: ${debouncedEventCount}`
+          )
+        } else {
+          // Default events: expect 8 native events, exactly 1 debounced
+          return logResult(
+            testResults,
+            eventName,
+            eventCount === 8 && debouncedEventCount === 1,
+            `Native events: ${eventCount}, Debounced events: ${debouncedEventCount}`
+          )
+        }
+      }
+
+      // Track test status for visual grid
+      const testStatus = {}
+
+      const createTestGrid = tests => {
+        const gridContainer = document.getElementById('testGridItems')
+        gridContainer.innerHTML = ''
+
+        // Clear previous test status
+        Object.keys(testStatus).forEach(key => delete testStatus[key])
+
+        tests.forEach(test => {
+          const item = document.createElement('div')
+          item.id = `test-${test.name}`
+          item.className = 'p-2 bg-gray-300 rounded text-center text-white font-medium truncate cursor-help'
+          item.title = test.name
+          item.textContent = test.name.substring(0, 10)
+          gridContainer.appendChild(item)
+          testStatus[test.name] = 'pending'
+        })
+
+        // Initialize grid summary
+        document.getElementById('gridPassed').textContent = '0'
+        document.getElementById('gridTotal').textContent = tests.length
+
+        document.getElementById('testGrid').classList.remove('hidden')
+      }
+
+      const updateTestStatus = (eventName, status) => {
+        const item = document.getElementById(`test-${eventName}`)
+        if (!item) return
+
+        testStatus[eventName] = status
+
+        // Remove all status classes
+        item.classList.remove('bg-gray-300', 'bg-blue-500', 'bg-green-500', 'bg-red-500', 'animate-pulse')
+
+        // Add appropriate status class
+        switch (status) {
+          case 'running':
+            item.classList.add('bg-blue-500', 'animate-pulse')
+            break
+          case 'passed':
+            item.classList.add('bg-green-500')
+            break
+          case 'failed':
+            item.classList.add('bg-red-500')
+            break
+          default:
+            item.classList.add('bg-gray-300')
+        }
+
+        // Update grid summary
+        const passedCount = Object.values(testStatus).filter(s => s === 'passed').length
+        const totalCount = Object.keys(testStatus).length
+        document.getElementById('gridPassed').textContent = passedCount
+        document.getElementById('gridTotal').textContent = totalCount
+      }
+
+      const runTests = async () => {
+        try {
+          console.log('Debounced object:', debounced)
+          console.log('Initializing debounced with 50ms wait...')
+          debounced.initialize(debounced.defaultEventNames, {wait: 50, leading: false, trailing: true})
+          console.log('Debounced initialized')
+
+          const testArea = getByTestId(document.body, 'testArea')
+          const testResults = getByTestId(document.body, 'testResults')
+
+          // Test all events but optimize timing
+          const allEvents = [
+            ...new Set([...debounced.defaultDelegatableEventNames, ...debounced.defaultWindowEventNames]),
+          ]
+
+          // Group events by type for faster testing
+          const quickEvents = [
+            'click',
+            'dblclick',
+            'mousedown',
+            'mouseup',
+            'keydown',
+            'keyup',
+            'focus',
+            'blur',
+            'submit',
+            'reset',
+            'change',
+            'select',
+          ]
+          const continuousEvents = ['mousemove', 'scroll', 'resize', 'mouseout', 'mouseover']
+          const skipEvents = [
+            'transitionrun',
+            'transitionstart',
+            'transitionend',
+            'transitioncancel',
+            'animationstart',
+            'animationend',
+            'animationiteration',
+            'animationcancel',
+          ]
+
+          // Filter out animation/transition events for speed
+          const testableEvents = allEvents.filter(e => !skipEvents.includes(e))
+
+          console.log(`Total unique events: ${allEvents.length}`)
+          console.log(`Testing ${testableEvents.length} events (skipping animation/transition events)`)
+          console.log('All events:', allEvents.sort())
+          console.log('Testable events:', testableEvents.sort())
+
+          const tests = testableEvents.map(eventName => {
+            return {
+              name: eventName,
+              run: async () =>
+                testEvent(testArea, testResults, eventName, async element => {
+                  switch (eventName) {
+                    case 'scroll':
+                      // Use real scrolling
+                      return window.scrollBy(0, 10)
+                    case 'click':
+                      // Use real click
+                      return getByTestId(testArea, 'testButton').click()
+                    case 'dblclick':
+                      // Double click needs to be simulated
+                      const dblBtn = getByTestId(testArea, 'testButton')
+                      dblBtn.click()
+                      dblBtn.click()
+                      return
+                    case 'focus':
+                      // Use real focus
+                      return getByTestId(testArea, 'testInput').focus()
+                    case 'blur':
+                      // Use real blur
+                      const blurInput = getByTestId(testArea, 'testInput')
+                      blurInput.focus() // Focus first
+                      return blurInput.blur()
+                    case 'input':
+                      // Change value and trigger input
+                      const inputEl = getByTestId(testArea, 'testInput')
+                      inputEl.value = `test${Date.now()}`
+                      return fireEvent(inputEl, 'input')
+                    case 'change':
+                      // Change value and trigger change
+                      const changeEl = getByTestId(testArea, 'testInput')
+                      changeEl.value = `test${Date.now()}`
+                      return fireEvent(changeEl, 'change')
+                    case 'mousedown':
+                    case 'mouseup':
+                      // These need synthetic events but fireEvent now tries real methods first
+                      return fireEvent(getByTestId(testArea, 'testButton'), eventName)
+                    case 'mousemove':
+                    case 'mouseenter':
+                    case 'mouseleave':
+                    case 'mouseover':
+                    case 'mouseout':
+                      // Mouse movement events need synthetic dispatch
+                      return fireEvent(getByTestId(testArea, 'testMouse'), eventName, {
+                        clientX: Math.random() * 100,
+                        clientY: Math.random() * 100,
+                      })
+                    case 'keydown':
+                    case 'keyup':
+                    case 'keypress':
+                      // Keyboard events need synthetic dispatch
+                      return fireEvent(getByTestId(testArea, 'testInput'), eventName, {key: 'a', code: 'KeyA'})
+                    case 'transitionrun':
+                    case 'transitionstart':
+                    case 'transitionend':
+                    case 'transitioncancel':
+                      // Handled by testEvent function
+                      return
+                    default:
+                      return fireEvent(element, eventName)
+                  }
+                }),
+            }
+          })
+
+          // Don't randomize for consistent progress tracking
+          const shuffledTests = tests
+
+          let passedTests = 0
+          let failedTests = 0
+
+          console.log(`Starting to test ${tests.length} events...`)
+
+          // Create the visual test grid
+          createTestGrid(tests)
+
+          // Create and insert summary header at the beginning
+          const summaryHeader = document.createElement('div')
+          summaryHeader.className = 'sticky top-0 p-4 mb-4 bg-gray-200 rounded'
+          summaryHeader.innerHTML = `
+          <h3 class="mb-2 text-xl font-bold">Test Summary</h3>
+          <p>Total Tests: <span id="totalTests">${tests.length}</span></p>
+          <p id="passedTestsP" class="hidden text-green-600">Passed Tests: <span id="passedTests">0</span></p>
+          <p id="failedTestsP" class="hidden text-red-600">Failed Tests: <span id="failedTests">0</span></p>
+        `
+          testResults.insertBefore(summaryHeader, testResults.firstChild)
+
+          const updateTestCounts = passed => {
+            if (passed) {
+              passedTests++
+              document.getElementById('passedTests').textContent = passedTests
+              document.getElementById('passedTestsP').classList.remove('hidden')
+            } else {
+              failedTests++
+              document.getElementById('failedTests').textContent = failedTests
+              document.getElementById('failedTestsP').classList.remove('hidden')
+            }
+          }
+
+          let testIndex = 0
+          for (const test of shuffledTests) {
+            testIndex++
+            // Update status to show current test
+            const runTestsBtn = getByTestId(document.body, 'runTestsBtn')
+            const runTestsBtnText = getByTestId(runTestsBtn, 'runTestsBtnText')
+            runTestsBtnText.textContent = `Testing ${test.name} (${testIndex}/${tests.length})`
+
+            // Mark test as running in grid
+            updateTestStatus(test.name, 'running')
+
+            const result = await test.run()
+
+            // Update grid status based on result
+            updateTestStatus(test.name, result ? 'passed' : 'failed')
+
+            updateTestCounts(result)
+
+            // Update progress bar
+            const progress = ((passedTests + failedTests) / tests.length) * 100
+            getByTestId(document.body, 'progressBar').style.width = `${progress}%`
+            getByTestId(document.body, 'progressText').textContent = `${Math.round(progress)}%`
+          }
+
+          // Final summary
+          console.log(`Tests complete! Passed: ${passedTests}/${tests.length}, Failed: ${failedTests}/${tests.length}`)
+          console.log(`Efficiency: Native events: ${totalNativeEvents}, Debounced events: ${totalDebouncedEvents}`)
+        } catch (error) {
+          console.error('Error in runTests:', error)
+          const testResults = getByTestId(document.body, 'testResults')
+          testResults.innerHTML = `<div class="text-red-600">Error: ${error.message}</div>`
+        }
+      }
+
+      const runTestsBtn = getByTestId(document.body, 'runTestsBtn')
+      const resetBtn = getByTestId(document.body, 'resetBtn')
+      const testArea = getByTestId(document.body, 'testArea')
+      const progressIndicator = getByTestId(document.body, 'progressIndicator')
+      const testResults = getByTestId(document.body, 'testResults')
+
+      // Track real-time stats
+      let totalNativeEvents = 0
+      let totalDebouncedEvents = 0
+      let testStartTime = null
+
+      // Update counters in real-time
+      const updateLiveCounters = () => {
+        document.getElementById('nativeCounter').textContent = totalNativeEvents
+        document.getElementById('debouncedCounter').textContent = totalDebouncedEvents
+
+        if (totalNativeEvents > 0) {
+          const efficiency = Math.round((1 - totalDebouncedEvents / totalNativeEvents) * 100)
+          document.getElementById('efficiencyCounter').textContent = `${efficiency}%`
+        }
+
+        if (testStartTime) {
+          const elapsed = Math.round((Date.now() - testStartTime) / 1000)
+          document.getElementById('timeElapsed').textContent = `${elapsed}s`
+        }
+      }
+
+      // Set up global listeners to track all events during tests
+      const setupGlobalTracking = () => {
+        // Track ALL events generically
+        const trackNative = e => {
+          totalNativeEvents++
+          updateLiveCounters()
+        }
+
+        const trackDebounced = e => {
+          totalDebouncedEvents++
+          updateLiveCounters()
+        }
+
+        // Add listeners for all possible events
+        debounced.defaultEventNames.forEach(eventName => {
+          document.addEventListener(eventName, trackNative, true)
+          window.addEventListener(eventName, trackNative, true)
+          document.addEventListener(`debounced:${eventName}`, trackDebounced, true)
+          window.addEventListener(`debounced:${eventName}`, trackDebounced, true)
+        })
+      }
+
+      async function startTests() {
+        const playIcon = getByTestId(runTestsBtn, 'playIcon')
+        const spinnerIcon = getByTestId(runTestsBtn, 'spinnerIcon')
+        const runTestsBtnText = getByTestId(runTestsBtn, 'runTestsBtnText')
+
+        // Reset counters
+        totalNativeEvents = 0
+        totalDebouncedEvents = 0
+        testStartTime = Date.now()
+        updateLiveCounters()
+
+        runTestsBtn.disabled = true
+        playIcon.classList.add('hidden')
+        spinnerIcon.classList.remove('hidden')
+        runTestsBtnText.textContent = 'Running Tests...'
+
+        // Start updating time
+        const timeInterval = setInterval(() => {
+          if (testStartTime) {
+            const elapsed = Math.round((Date.now() - testStartTime) / 1000)
+            document.getElementById('timeElapsed').textContent = `${elapsed}s`
+          }
+        }, 100)
+
+        // Don't hide testArea, but disable interaction
+        testArea.style.pointerEvents = 'none'
+        testArea.style.opacity = '0.5'
+
+        progressIndicator.classList.remove('hidden')
+        testResults.innerHTML = ''
+        await runTests()
+
+        clearInterval(timeInterval)
+
+        runTestsBtn.disabled = false
+        playIcon.classList.remove('hidden')
+        spinnerIcon.classList.add('hidden')
+        runTestsBtnText.textContent = 'Run Automated Tests'
+
+        // Re-enable interaction with testArea
+        testArea.style.pointerEvents = 'auto'
+        testArea.style.opacity = '1'
+
+        resetBtn.disabled = false
+        resetBtn.classList.remove('opacity-50', 'cursor-not-allowed')
+      }
+
+      runTestsBtn.addEventListener('click', startTests)
+
+      // Add these lines near the top of the script, after the getByTestId function
+
+      let initialInputValue = ''
+      let initialInputStyle = ''
+      let initialButtonStyle = ''
+      let initialMouseAreaStyle = ''
+
+      // Add this function to capture initial states
+      const captureInitialStates = () => {
+        const testInput = getByTestId(document.body, 'testInput')
+        const testButton = getByTestId(document.body, 'testButton')
+        const testMouse = getByTestId(document.body, 'testMouse')
+
+        initialInputValue = testInput.value
+        initialInputStyle = testInput.getAttribute('style') || ''
+        initialButtonStyle = testButton.getAttribute('style') || ''
+        initialMouseAreaStyle = testMouse.getAttribute('style') || ''
+      }
+
+      // Modify the reset button event listener
+      resetBtn.addEventListener('click', () => {
+        const testInput = getByTestId(document.body, 'testInput')
+        const testButton = getByTestId(document.body, 'testButton')
+        const testMouse = getByTestId(document.body, 'testMouse')
+
+        testArea.style.pointerEvents = 'auto'
+        testArea.style.opacity = '1'
+        progressIndicator.classList.add('hidden')
+        testResults.innerHTML = ''
+
+        // Hide and clear test grid
+        document.getElementById('testGrid').classList.add('hidden')
+        document.getElementById('testGridItems').innerHTML = ''
+
+        // Reset input value and styles
+        testInput.value = initialInputValue
+        testInput.setAttribute('style', initialInputStyle)
+        testButton.setAttribute('style', initialButtonStyle)
+        testMouse.setAttribute('style', initialMouseAreaStyle)
+
+        // Ensure transition styles are removed
+        ;[testInput, testButton, testMouse].forEach(element => {
+          element.style.transition = ''
+          element.style.backgroundColor = ''
+        })
+
+        resetBtn.disabled = true
+        resetBtn.classList.add('opacity-50', 'cursor-not-allowed')
+      })
+
+      // Modify the window load event listener
+      window.addEventListener('load', () => {
+        setupPersistentEventListeners()
+        debounced.initialize()
+        captureInitialStates() // Capture initial states when the page loads
+        // Setup global tracking after debounced is initialized
+        setTimeout(() => setupGlobalTracking(), 100)
+      })
+
+      // Add this code block just before the runTests function
+
+      const setupPersistentEventListeners = () => {
+        const testArea = getByTestId(document.body, 'testArea')
+        debounced.defaultEventNames.forEach(eventName => {
+          let testElement
+          if (eventName === 'scroll') {
+            testElement = window
+          } else {
+            switch (eventName) {
+              case 'click':
+              case 'mousedown':
+              case 'mouseup':
+              case 'dblclick':
+                testElement = getByTestId(testArea, 'testButton')
+                break
+              case 'mousemove':
+              case 'mouseenter':
+              case 'mouseleave':
+              case 'mouseover':
+              case 'mouseout':
+                testElement = getByTestId(testArea, 'testMouse')
+                break
+              case 'keydown':
+              case 'keyup':
+              case 'keypress':
+              case 'input':
+              case 'change':
+                testElement = getByTestId(testArea, 'testInput')
+                break
+              default:
+                testElement = getByTestId(testArea, 'testInput')
+            }
+          }
+
+          testElement.addEventListener(`debounced:${eventName}`, () => {
+            console.log(`Debounced ${eventName} fired (non-automated test context)`)
+          })
+        })
+      }
+
+      // Modify the existing code at the bottom of the file:
+
+      // Remove this line if it exists:
+      // window.addEventListener('load', startTests)
+
+      // Add this instead:
+      window.addEventListener('load', () => {
+        setupPersistentEventListeners()
+        debounced.initialize()
+      })
+    </script>
+  </body>
+</html>

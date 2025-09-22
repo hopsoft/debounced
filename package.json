@@ -12,6 +12,7 @@
     "lint": "prettier --check ./src ./test *.json *.md",
     "test": "npm run build && playwright test",
     "test:ui": "npm run build && playwright test --ui",
+    "test:visual": "npm run build && npx http-server . -o /test/visual.html -p 8080",
     "toc": "npx markdown-toc -i --maxdepth 2 README.md"
   },
   "devDependencies": {

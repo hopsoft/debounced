@@ -1,12 +1,18 @@
 import version from './version'
-import {nativeDelegatableEvents, nativeWindowEvents} from './events'
+import {
+  nativeBubblingEvents,
+  nativeCapturableEvents,
+  nativeDelegatableEvents,
+  nativeWindowEvents,
+  nativeEvents,
+} from './events'
 
 let prefix = 'debounced'
 
 const defaultOptions = {
   wait: 200, // ........ the number of milliseconds to wait
   leading: false, // ... fire event on the leading edge of the timeout
-  trailing: true, // .... fire event on the trailing edge of the timeout
+  trailing: true, // ... fire event on the trailing edge of the timeout
 }
 
 const registeredEvents = {}
@@ -28,7 +34,7 @@ const dispatchDebouncedEvent = (sourceEvent, type) => {
     composed,
     detail: {sourceEvent, type},
   })
-  sourceEvent.target.dispatchEvent(debouncedEvent)
+  sourceEvent.target?.dispatchEvent(debouncedEvent)
 }
 
 /**
@@ -61,7 +67,7 @@ const buildDebounceEventHandler = (options = {}) => {
 
       // cleanup
       delete elementTimeouts[event.type]
-      for (const _ in elementTimeouts) return // entries present
+      if (Object.keys(elementTimeouts).length > 0) return // entries present
       timeouts.delete(event.target) // entries empty
     }, wait)
   }
@@ -72,10 +78,13 @@ const buildDebounceEventHandler = (options = {}) => {
  * @param {String} name - Name of the sourceEvent to unregister
  */
 const unregisterEvent = name => {
-  const handler = registeredEvents[name]?.handler
+  const registration = registeredEvents[name]
+  if (!registration) return name
+
+  const {handler, useCapture} = registration
 
   if (documentRegistrations[name]) {
-    document.removeEventListener(name, handler)
+    document.removeEventListener(name, handler, useCapture || false)
     delete documentRegistrations[name]
   }
 
@@ -97,26 +106,25 @@ const unregisterEvent = name => {
 const registerEvent = (name, options = {}) => {
   unregisterEvent(name)
   options = {...defaultOptions, ...options}
+  options.useCapture ||= nativeCapturableEvents.includes(name)
   options.handler = buildDebounceEventHandler(options)
+
   registeredEvents[name] = options
 
-  const isDelegatable = nativeDelegatableEvents.includes(name)
-  const isWindow = nativeWindowEvents.includes(name)
+  const isNativeDelegatableEvent = nativeDelegatableEvents.includes(name)
+  const isNativeWindowEvent = nativeWindowEvents.includes(name)
+  const isCustomEvent = !isNativeDelegatableEvent && !isNativeWindowEvent
 
-  if (isDelegatable || isWindow) {
-    if (isDelegatable) {
-      document.addEventListener(name, options.handler)
-      documentRegistrations[name] = options
-    }
-
-    if (isWindow) {
-      window.addEventListener(name, options.handler)
-      windowRegistrations[name] = options
-    }
-  } else {
-    // Default to document delegation for unrecognized events
-    document.addEventListener(name, options.handler)
+  // Register delegatable and custom events on document
+  if (isNativeDelegatableEvent || isCustomEvent) {
+    document.addEventListener(name, options.handler, options.useCapture || false)
     documentRegistrations[name] = options
+  }
+
+  // Register window and custom events on window
+  if (isNativeWindowEvent || isCustomEvent) {
+    window.addEventListener(name, options.handler)
+    windowRegistrations[name] = options
   }
 
   return {[name]: registeredEvents[name]}
@@ -150,13 +158,10 @@ const unregister = (eventNames = []) => {
  * @param {Object} options - debounce options
  */
 const register = (eventNames = [], options = {}) => {
-  if (!eventNames || eventNames.length === 0) eventNames = nativeDelegatableEvents
+  if (!eventNames || eventNames.length === 0) eventNames = nativeEvents
 
   eventNames.forEach(name => registerEvent(name, options))
-  return eventNames.reduce((memo, name) => {
-    memo[name] = registeredEvents[name]
-    return memo
-  }, {})
+  return Object.fromEntries(eventNames.map(name => [name, registeredEvents[name]]))
 }
 
 export default {
@@ -165,24 +170,47 @@ export default {
   unregister,
   registerEvent,
   unregisterEvent,
-  get defaultEventNames() {
+
+  get defaultBubblingEventNames() {
+    return [...nativeBubblingEvents]
+  },
+
+  get defaultCapturableEventNames() {
+    return [...nativeCapturableEvents]
+  },
+
+  get defaultDelegatableEventNames() {
     return [...nativeDelegatableEvents]
   },
+
+  get defaultWindowEventNames() {
+    return [...nativeWindowEvents]
+  },
+
+  get defaultEventNames() {
+    return [...nativeEvents]
+  },
+
   get defaultOptions() {
     return {...defaultOptions}
   },
+
   get prefix() {
     return prefix
   },
+
   set prefix(value) {
     prefix = value
   },
+
   get registeredEvents() {
     return {...registeredEvents}
   },
+
   get registeredEventNames() {
     return Object.keys(registeredEvents)
   },
+
   get version() {
     return version
   },

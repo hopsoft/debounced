@@ -221,8 +221,9 @@
       import debounced from '../dist/debounced.js'
       import {nativeDelegatableEvents, nativeWindowEvents} from '../src/events.js'
 
-      // Initialize debounced events
-      debounced.initialize()
+      // Initialize debounced events with shorter wait for testing
+      // Using 50ms wait to make tests faster and more predictable
+      debounced.initialize(debounced.defaultEventNames, {wait: 50, leading: false, trailing: true})
 
       // Expose to global scope for tests
       window.debounced = debounced

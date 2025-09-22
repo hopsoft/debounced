@@ -1,18 +1,8 @@
-// All native DOM events that work with document-level event delegation
+// Events that naturally bubble up through the DOM tree
 // SEE: https://developer.mozilla.org/en-US/docs/Web/Events
-//
-// INCLUDED: Events that bubble OR can be captured via document listeners
-// - Most events bubble naturally and work with event delegation
-// - Some events (load, resize, scroll, etc.) don't bubble but can be captured
-// - Document-level listeners with capture=true work for all these events
-//
-// EXCLUDED (don't work with document-level delegation):
-// - focus/blur: Use focusin/focusout instead (which do bubble)
-// - mouseenter/mouseleave: Use mouseover/mouseout instead (which do bubble)
 
-export const nativeDelegatableEvents = [
+export const nativeBubblingEvents = [
   'DOMContentLoaded',
-  'abort',
   'animationcancel',
   'animationend',
   'animationiteration',
@@ -40,7 +30,6 @@ export const nativeDelegatableEvents = [
   'durationchange',
   'emptied',
   'ended',
-  'error',
   'focusin',
   'focusout',
   'fullscreenchange',
@@ -49,10 +38,6 @@ export const nativeDelegatableEvents = [
   'input',
   'keydown',
   'keyup',
-  'load',
-  'loadeddata',
-  'loadedmetadata',
-  'loadstart',
   'mousedown',
   'mousemove',
   'mouseout',
@@ -99,39 +84,61 @@ export const nativeDelegatableEvents = [
   'wheel',
 ]
 
+// Events that don't bubble but can be captured by document during the capture phase
+// These require addEventListener with capture: true
+export const nativeCapturableEvents = [
+  'abort',
+  'blur',
+  'error',
+  'focus',
+  'load',
+  'loadeddata',
+  'loadedmetadata',
+  'loadstart',
+  'mouseenter',
+  'mouseleave',
+  'pointerenter',
+  'pointerleave',
+]
+
+// Combination of all delegatable events (bubbling + capturable)
+export const nativeDelegatableEvents = Array.from(new Set([...nativeBubblingEvents, ...nativeCapturableEvents])).sort()
+
 // Events that can be listened to on window
 // Some are window-only, others also work with document delegation
-export const nativeWindowEvents = [
-  'afterprint',
-  'appinstalled',
-  'beforeinstallprompt',
-  'beforeprint',
-  'beforeunload',
-  'blur',
-  'devicemotion',
-  'deviceorientation',
-  'deviceorientationabsolute',
-  'focus',
-  'gamepadconnected',
-  'gamepaddisconnected',
-  'hashchange',
-  'languagechange',
-  'load',
-  'message',
-  'messageerror',
-  'offline',
-  'online',
-  'pagehide',
-  'pageshow',
-  'pageswap',
-  'popstate',
-  'rejectionhandled',
-  'resize',
-  'scroll',
-  'scrollsnapchange',
-  'scrollsnapchanging',
-  'storage',
-  'unhandledrejection',
-  'unload',
-  'visibilitychange',
-]
+export const nativeWindowEvents = Array.from(
+  new Set([
+    'afterprint',
+    'appinstalled',
+    'beforeinstallprompt',
+    'beforeprint',
+    'beforeunload',
+    'blur',
+    'devicemotion',
+    'deviceorientation',
+    'deviceorientationabsolute',
+    'error',
+    'focus',
+    'gamepadconnected',
+    'gamepaddisconnected',
+    'hashchange',
+    'languagechange',
+    'load',
+    'message',
+    'messageerror',
+    'offline',
+    'online',
+    'pagehide',
+    'pagereveal',
+    'pageshow',
+    'pageswap',
+    'popstate',
+    'rejectionhandled',
+    'resize',
+    'storage',
+    'unhandledrejection',
+    ...nativeBubblingEvents,
+  ])
+).sort()
+
+export const nativeEvents = Array.from(new Set([...nativeDelegatableEvents, ...nativeWindowEvents])).sort()

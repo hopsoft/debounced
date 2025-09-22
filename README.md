@@ -7,20 +7,27 @@
 
 # Debounced
 
-**Universal debounce that works with every framework. Just add the `debounced:` prefix to any event.**
+Stop overwhelming your app with excessive events. Transform high-frequency events like `input`, `scroll`, and `resize` into manageable, debounced versions that fire only when users finish their actions.
 
-One line of setup gives you debounced events everywhere - from vanilla JavaScript to React, Vue, Alpine, HTMX, Stimulus, ...
+**One line of initialization. Every framework supported. Zero dependencies.**
 
 ```javascript
 // Initialize once in your app
 import debounced from 'debounced'
 debounced.initialize()
-// That's it, you're done
 ```
 
-Now every framework can use debounced events with their native syntax:
+**That's it.** Now vanilla JavaScript and every client-side framework can use debounced events.
+
+```javascript
+// Vanilla JavaScript - works immediately, no framework needed
+const el = document.getElementById('example')
+el.addEventListener('debounced:input', evt => `Do something with ${evt.target.value}`)
+```
 
 ```html
+<!-- Also works with every framework's native syntax -->
+
 <!-- Alpine.js -->
 <input @debounced:input="search = $event.target.value" x-model="search" />
 
@@ -32,16 +39,14 @@ Now every framework can use debounced events with their native syntax:
 
 <!-- HTMX -->
 <input hx-trigger="debounced:input" hx-get="/search" hx-target="#results" />
-
-<!-- Vanilla JS -->
-<input oninput="this.dispatchEvent(new Event('debounced:input'))" />
 ```
 
-Without this library, each framework requires different debounce implementations, incompatible syntaxes, and custom code. With Debounced, they all work the same way.
+## Why You Need This
 
-## The Problem
+High-frequency events can fire hundreds of times per second, overwhelming your app with expensive operations like API calls or DOM updates. Every framework handles debouncing differently - or not at all.
 
-High-frequency events can fire hundreds of times per second, causing performance issues when attached to expensive operations like API calls or DOM updates. Every framework handles this differently - or not at all.
+**Without Debounced:** Inconsistent syntax, framework-specific solutions, performance bottlenecks
+**With Debounced:** Universal syntax, single implementation, optimized performance
 
 ```html
 <!-- Framework-specific debounce syntax is inconsistent -->
@@ -51,9 +56,9 @@ High-frequency events can fire hundreds of times per second, causing performance
 <!-- Stimulus: Requires stimulus-use or custom solution for debounce -->
 ```
 
-### The Solution
+### Universal Solution
 
-Debounced provides universal `debounced:` events that work identically across all frameworks:
+Debounced provides consistent `debounced:` events that work identically across all frameworks:
 
 ```html
 <!-- Same event name works everywhere: 'debounced:input' -->
@@ -71,53 +76,58 @@ Debounced provides universal `debounced:` events that work identically across al
 <input data-action="debounced:input->search#query" />
 ```
 
-**Key Features:**
+## Key Benefits
 
-- ✅ **Universal compatibility** - Works with any JavaScript framework or vanilla JS
-- ✅ **True DOM events** - Standard CustomEvents, no wrappers or adapters
-- ✅ **110 events supported** - All native DOM events including window events
-- ✅ **Zero dependencies** - Pure JavaScript, 6KB minified
-- ✅ **Event delegation** - Automatically works with dynamic elements
-- ✅ **Per-element timers** - Each element maintains independent debounce state
-- ✅ **Leading & trailing** - Fire at start, end, or both (most frameworks only support trailing)
+- **Universal Compatibility** - Works with any JavaScript framework or vanilla JS
+- **True DOM Events** - Standard CustomEvents, no wrappers or adapters needed
+- **113+ Events Supported** - All native DOM events, window events, and custom events
+- **Zero Dependencies** - Pure JavaScript, lightweight at 6KB minified
+- **Event Delegation** - Automatically works with dynamic elements
+- **Per-Element Timers** - Each element maintains independent debounce state
+- **Leading & Trailing** - Fire at start, end, or both (most frameworks only support trailing)
 
 ## Table of Contents
 
 <!-- toc -->
 
 - [Quick Start](#quick-start)
-- [Prerequisites](#prerequisites)
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [How It Works](#how-it-works)
 - [Basic Usage](#basic-usage)
 - [Window Events](#window-events)
-- [Event Timing](#event-timing)
+- [Timing Configuration](#timing-configuration)
 - [Event Management](#event-management)
-- [Leading vs Trailing](#leading-vs-trailing)
+- [Leading vs Trailing Events](#leading-vs-trailing-events)
 - [Custom Events](#custom-events)
 - [Performance Optimization](#performance-optimization)
-- [Library Integration](#library-integration)
+- [Framework Integration](#framework-integration)
 - [API Reference](#api-reference)
 - [Browser Support](#browser-support)
 - [Troubleshooting](#troubleshooting)
-- [FAQ](#faq)
+- [Frequently Asked Questions](#frequently-asked-questions)
 - [Contributing](#contributing)
 
 <!-- tocstop -->
 
 ## Quick Start
 
+### 1. Install
+
 ```bash
 npm install debounced
 ```
 
+### 2. Initialize Once
+
 ```javascript
-// Initialize once in your app
 import debounced from 'debounced'
 debounced.initialize()
 ```
 
-Now use debounced events anywhere:
+### 3. Use Everywhere
+
+Add the `debounced:` prefix to any event name in your existing code:
 
 ```javascript
 // Vanilla JavaScript
@@ -136,28 +146,37 @@ document.addEventListener('debounced:input', e => {
 <!-- Stimulus -->
 ```
 
-### Real-World Examples
+### Common Use Cases
+
+**Search with Live Results**
 
 ```html
-<!-- 🔍 Search with live results -->
 <input hx-get="/search" hx-trigger="debounced:input" hx-target="#results" placeholder="Search products..." />
+```
 
-<!-- 📝 Auto-save form -->
+**Auto-Save Forms**
+
+```html
 <textarea @debounced:input="autoSave($event.target.value)" placeholder="Your content auto-saves as you type"></textarea>
+```
 
-<!-- 🛡️ Prevent double-submit -->
+**Prevent Double-Clicks**
+
+```html
 <button @debounced:click="submitOrder" :disabled="submitting">Place Order</button>
+```
 
-<!-- 📜 Infinite scroll -->
+**Smooth Infinite Scroll**
+
+```html
 <div data-action="debounced:scroll->infinite#loadMore">
   <!-- Content loads automatically as user scrolls -->
 </div>
 ```
 
-**JavaScript when needed:**
+**Keyboard Shortcuts**
 
 ```javascript
-// Advanced use cases requiring event details
 document.addEventListener('debounced:keydown', event => {
   const {key, ctrlKey, metaKey} = event.detail.sourceEvent
   if (key === 's' && (ctrlKey || metaKey)) {
@@ -167,13 +186,15 @@ document.addEventListener('debounced:keydown', event => {
 })
 ```
 
-## Prerequisites
+## Requirements
 
-This library requires:
+**Browser Support**: Modern browsers with `CustomEvent` support
 
-- **JavaScript Knowledge**: Basic understanding of event listeners and ES6+ syntax
-- **Browser Support**: Modern browsers with `CustomEvent` support (Chrome 51+, Firefox 54+, Safari 10+)
-- **Module System**: ES modules or a bundler like webpack/vite
+- Chrome 51+, Firefox 54+, Safari 10+, Edge 79+
+
+**Module System**: ES modules or a bundler like webpack/vite
+
+**Prerequisites**: Basic understanding of event listeners and ES6 syntax
 
 ## Installation
 
@@ -204,19 +225,19 @@ yarn add debounced
 
 ## How It Works
 
-### The Problem
+### The Performance Problem
 
-High-frequency events can fire hundreds of times per second:
+High-frequency events fire excessively, overwhelming your app:
 
-- `input` events fire on every keystroke
-- `scroll` events fire continuously during scrolling
-- `mousemove` events fire on every pixel of movement
+- **Search input**: 100+ events per second while typing
+- **Scroll events**: 300+ events per second during scrolling
+- **Mouse movement**: 1000+ events per second during tracking
 
-Attaching expensive operations (API calls, DOM updates) to these events causes performance issues.
+Attaching expensive operations (API calls, DOM updates) to these events creates performance bottlenecks.
 
-### The Solution
+### The Debounced Solution
 
-This library creates debounced versions of events that fire only after user interaction stops:
+Debounced transforms these excessive events into single, well-timed events that fire only after users complete their actions:
 
 ```javascript
 // ❌ Without debouncing: Fires on EVERY keystroke
@@ -230,86 +251,79 @@ input.addEventListener('debounced:input', event => {
 })
 ```
 
-### Key Benefits
+### Implementation Benefits
 
-- **Memory Efficient**: Uses event delegation with a single listener per event type
-- **Per-Element Timers**: Each element maintains its own independent debounce timer
-- **Dynamic Elements**: Automatically works with elements added after initialization
-- **Zero Dependencies**: No external libraries required
+- **Memory Efficient**: Single listener per event type via event delegation
+- **Per-Element Timers**: Each element maintains independent debounce state
+- **Dynamic Elements**: Works automatically with elements added after page load
+- **Zero Dependencies**: Pure JavaScript, no external libraries
 
 ## Basic Usage
 
-### Initialize Events
+### Step 1: Initialize Events
 
 ```javascript
 import debounced from 'debounced'
 
-// Option 1: Initialize all 86 delegatable events (easiest)
+// Easiest: Initialize all 92 delegatable events
 debounced.initialize()
 
-// Option 2: Initialize only specific events (most efficient)
+// Most efficient: Initialize only what you need
 debounced.initialize(['input', 'click', 'resize'])
 
-// Option 3: Initialize with custom timing
+// Custom timing: Adjust wait period for specific events
 debounced.initialize(['input'], {wait: 300})
 ```
 
-### Listen for Debounced Events
+### Step 2: Listen for Debounced Events
 
-All debounced events follow the pattern `debounced:eventname`:
+Transform any event by adding the `debounced:` prefix:
 
 ```javascript
-// Original event:    'input'
-// Debounced event:   'debounced:input'
+// Original event → Debounced event
+// 'input'        → 'debounced:input'
+// 'click'        → 'debounced:click'
+// 'scroll'       → 'debounced:scroll'
 
 element.addEventListener('debounced:input', handler)
 element.addEventListener('debounced:click', handler)
-element.addEventListener('debounced:scroll', handler)
+window.addEventListener('debounced:scroll', handler)
 ```
 
-### Access Event Data
+### Step 3: Access Event Data
 
-Debounced events are CustomEvents with this structure:
+Debounced events contain all the information you need from the original event:
 
 ```javascript
 document.addEventListener('debounced:input', event => {
-  // event is a CustomEvent with:
-  // - target: The element that triggered the event (same as original)
-  // - detail: Object containing sourceEvent and type
-
-  // Access element properties directly via event.target
+  // Use event.target for element properties (most common)
   console.log(event.target.value) // Input value
   console.log(event.target.checked) // Checkbox state
   console.log(event.target.id) // Element ID
 
-  // Access the original event via detail.sourceEvent
-  const originalEvent = event.detail.sourceEvent
-  console.log(originalEvent.key) // 'Enter', 'a', etc.
-  console.log(originalEvent.shiftKey) // Was shift pressed?
-  console.log(originalEvent.timeStamp) // When did original fire?
-  console.log(originalEvent.constructor.name) // 'InputEvent', 'MouseEvent', etc.
+  // Use event.detail.sourceEvent for original event properties
+  const original = event.detail.sourceEvent
+  console.log(original.key) // 'Enter', 'a', etc.
+  console.log(original.shiftKey) // Was shift pressed?
+  console.log(original.timeStamp) // When original event fired
 
-  // Check debounce timing
-  const timing = event.detail.type // 'leading' or 'trailing'
+  // Check when debounce fired
+  console.log(event.detail.type) // 'leading' or 'trailing'
 })
 ```
 
-#### When to Use Each Property
+**Quick Reference**
 
-| Need to access...   | Use                                  | Example                      |
-| ------------------- | ------------------------------------ | ---------------------------- |
-| Input value         | `event.target.value`                 | Text field content           |
-| Checkbox state      | `event.target.checked`               | Checkbox checked             |
-| Element attributes  | `event.target.*`                     | `id`, `className`, `dataset` |
-| Keyboard key        | `event.detail.sourceEvent.key`       | Which key was pressed        |
-| Mouse position      | `event.detail.sourceEvent.clientX`   | Mouse coordinates            |
-| Modifier keys       | `event.detail.sourceEvent.*Key`      | `shiftKey`, `ctrlKey`        |
-| Original event type | `event.detail.sourceEvent.type`      | 'input', 'click', etc.       |
-| Original timestamp  | `event.detail.sourceEvent.timeStamp` | When event originally fired  |
+| For...             | Use                          | Example                         |
+| ------------------ | ---------------------------- | ------------------------------- |
+| Element properties | `event.target.*`             | `.value`, `.checked`, `.id`     |
+| Keyboard details   | `event.detail.sourceEvent.*` | `.key`, `.shiftKey`, `.ctrlKey` |
+| Mouse details      | `event.detail.sourceEvent.*` | `.clientX`, `.clientY`          |
+| Timing info        | `event.detail.type`          | `'leading'` or `'trailing'`     |
 
 ## Window Events
 
-Debounced supports 110 total events, including 32 window-specific events that don't participate in normal DOM bubbling. These events are critical for performance optimization and app lifecycle management.
+Beyond regular DOM events, Debounced supports 21 window-specific events that are essential for app performance and lifecycle management.
 
 ### Performance Events
 
@@ -344,32 +358,34 @@ window.addEventListener('debounced:deviceorientation', adjust) // Device tilt
 | `devicemotion`     | Drains battery with constant updates | Optimizes for performance   |
 | `online`/`offline` | Multiple rapid-fire notifications    | Single clean state change   |
 
-## Event Timing
+## Timing Configuration
 
-### Customize Wait Time
+### Choose Your Wait Time
 
-Control how long to wait before firing the debounced event:
+The wait time determines how long to pause after the last event before firing the debounced version:
 
 ```javascript
-// Default: 200ms
+// Default: 200ms (good for most use cases)
 debounced.initialize()
 
-// Custom timing for different use cases
-debounced.register(['input'], {wait: 300}) // Search: wait longer
-debounced.register(['scroll'], {wait: 50}) // Scroll: more responsive
-debounced.register(['mousemove'], {wait: 16}) // Animation: 60fps
+// Longer waits for user input
+debounced.register(['input'], {wait: 300}) // Search: let users finish typing
+
+// Shorter waits for responsive interactions
+debounced.register(['scroll'], {wait: 50}) // Scrolling: stay responsive
+debounced.register(['mousemove'], {wait: 16}) // Animation: 60fps smoothness
 ```
 
-### Timing Recommendations
+### Recommended Timing by Use Case
 
-| Use Case          | Wait Time  | Reason                           |
-| ----------------- | ---------- | -------------------------------- |
-| Search input      | 300-500ms  | Allows natural typing pauses     |
-| Form validation   | 1000ms     | Validates after field completion |
-| Scroll tracking   | 50-100ms   | Smooth but not excessive         |
-| Window resize     | 150-300ms  | Accounts for drag resizing       |
-| Mouse tracking    | 16ms       | 60fps for smooth animations      |
-| Button protection | 500-1000ms | Prevents double-clicks           |
+| Use Case              | Wait Time  | Why This Works                          |
+| --------------------- | ---------- | --------------------------------------- |
+| **Search input**      | 300-500ms  | Matches natural typing pauses           |
+| **Form validation**   | 1000ms     | Validates after users finish a field    |
+| **Scroll effects**    | 50-100ms   | Smooth without overwhelming the browser |
+| **Window resize**     | 150-300ms  | Handles drag-resize completion          |
+| **Button protection** | 500-1000ms | Prevents accidental double-clicks       |
+| **Mouse tracking**    | 16ms       | Maintains 60fps for animations          |
 
 ## Event Management
 
@@ -431,31 +447,31 @@ console.log(debounced.registeredEvents)
 // { input: { wait: 300, leading: false, trailing: true, handler: fn } }
 ```
 
-## Leading vs Trailing
+## Leading vs Trailing Events
 
-### Understanding Timing Modes
+### When Should Events Fire?
 
-Debounced events can fire at two points:
+Choose when your debounced events trigger based on user experience needs:
 
-- **Leading**: Immediately when interaction starts
-- **Trailing**: After the wait period when interaction stops
+- **Trailing** (default): Fire after users finish their action
+- **Leading**: Fire immediately when users start their action
+- **Both**: Fire at start AND end for immediate + final feedback
 
 ```javascript
-// Default: Trailing only (fires after user stops)
+// Trailing only: Wait for user to finish (default)
 debounced.register(['input'], {
   wait: 300,
-  leading: false,
-  trailing: true, // Default
+  trailing: true, // Default behavior
 })
 
-// Leading only (fires immediately, ignores subsequent)
+// Leading only: Respond immediately, block repeats
 debounced.register(['click'], {
   wait: 1000,
   leading: true,
   trailing: false,
 })
 
-// Both (fires immediately AND after stopping)
+// Both: Immediate response + final confirmation
 debounced.register(['scroll'], {
   wait: 100,
   leading: true,
@@ -463,13 +479,13 @@ debounced.register(['scroll'], {
 })
 ```
 
-### When to Use Each Mode
+### Choose the Right Mode
 
-| Mode                        | Use Case                            | Example                                   |
-| --------------------------- | ----------------------------------- | ----------------------------------------- |
-| **Trailing only** (default) | Wait for user to finish             | Search suggestions, form validation       |
-| **Leading only**            | Immediate response, prevent repeats | Button click protection, analytics events |
-| **Both**                    | Instant feedback + final state      | Scroll position, drag operations          |
+| Mode              | Best For                        | Example Use Cases                   |
+| ----------------- | ------------------------------- | ----------------------------------- |
+| **Trailing only** | Wait for completion             | Search suggestions, form validation |
+| **Leading only**  | Immediate response + protection | Button clicks, analytics tracking   |
+| **Both modes**    | Instant feedback + final state  | Scroll position, drag operations    |
 
 ## Custom Events
 
@@ -506,71 +522,75 @@ document.addEventListener('throttled:scroll', handler)
 
 ## Performance Optimization
 
-### Best Practices
+### Best Practices for Maximum Efficiency
+
+**Initialize Only What You Need**
 
 ```javascript
-// ✅ GOOD: Register only what you need
+// ✅ Efficient: Register specific events
 debounced.initialize(['input', 'click', 'resize'])
 
-// ❌ AVOID: Registering everything if you only need a few
-debounced.initialize() // Registers all 86 events unnecessarily
-
-// ✅ GOOD: Appropriate timing for each use case
-debounced.register(['input'], {wait: 300}) // User typing
-debounced.register(['mousemove'], {wait: 50}) // Smooth tracking
-debounced.register(['resize'], {wait: 200}) // Window resizing
+// ❌ Wasteful: Register all 92 events if you only use a few
+debounced.initialize() // Only do this if you need most events
 ```
 
-### Performance Impact
+**Tune Timing for Each Use Case**
 
-**Before debouncing** (search input firing 300 times):
-
-```
-API Calls: 300 requests
-Network: 450KB transferred
-Response Time: 2.3s average
-CPU Usage: High (constant processing)
+```javascript
+// Fast response for user interactions
+debounced.register(['input'], {wait: 300}) // Typing
+debounced.register(['mousemove'], {wait: 16}) // 60fps tracking
+debounced.register(['resize'], {wait: 200}) // Window sizing
 ```
 
-**After debouncing** (same interaction, 300ms wait):
+### Real Performance Impact
 
-```
-API Calls: 1 request
-Network: 1.5KB transferred
-Response Time: 0.2s
-CPU Usage: Minimal
-```
+Here's what debouncing achieves in a typical search input scenario:
 
-**Memory Efficiency:**
+**Without Debouncing** (300 keystrokes)
 
-- **Single Listener**: One document-level listener per event type
-- **Automatic Cleanup**: Timers cleared after firing
-- **Dynamic Elements**: No manual attach/detach needed
-- **Scales Well**: Performance constant regardless of element count
+- API calls: 300 requests
+- Network usage: 450KB transferred
+- Response time: 2.3s average
+- CPU usage: High (constant processing)
 
-## Library Integration
+**With Debouncing** (300ms wait)
 
-**The beauty of debounced: it works with every library because it uses native DOM events.** No special integrations needed - if your code can handle `click` events, it can handle `debounced:click` events.
+- API calls: 1 request
+- Network usage: 1.5KB transferred
+- Response time: 0.2s
+- CPU usage: Minimal
 
-### Supported Events
+**Built-in Efficiency Features**
 
-Debounced supports **110 unique events**:
+- Single document listener per event type (memory efficient)
+- Automatic timer cleanup (no memory leaks)
+- Works with dynamic content (no manual management)
+- Performance scales regardless of element count
 
-- **86 document events** - Standard DOM events that bubble (click, input, keydown, etc.)
-- **24 window-only events** - Events exclusive to window (storage, online, offline, devicemotion, etc.)
-- **8 events work on both** - Window and document (resize, scroll, load, etc.)
+## Framework Integration
+
+Debounced works with every JavaScript framework because it uses standard DOM events. If your framework can handle `click` events, it can handle `debounced:click` events - no special integration required.
+
+### Event Coverage
+
+**113+ events supported (including custom events):**
+
+- 92 document events (click, input, keydown, mousemove, etc.)
+- 21 window-only events (storage, online, offline, devicemotion, etc.)
+- All events work consistently across frameworks
 
 ### Framework Comparison
 
 | Framework     | Built-in Debounce                                   | What Debounced Adds                                                              |
 | ------------- | --------------------------------------------------- | -------------------------------------------------------------------------------- |
-| **Alpine.js** | `@input.debounce.500ms`<br/>Input/model events only | ✅ All 110 events<br/>✅ Leading + trailing timing<br/>✅ Window events          |
+| **Alpine.js** | `@input.debounce.500ms`<br/>Input/model events only | ✅ All 113+ events<br/>✅ Leading + trailing timing<br/>✅ Custom events         |
 | **HTMX**      | `hx-trigger="delay:300ms"`<br/>Server requests only | ✅ Works with local JS<br/>✅ Beyond HTMX requests<br/>✅ True debounce behavior |
 | **Livewire**  | `wire:model.debounce.500ms`<br/>Model binding only  | ✅ All event types<br/>✅ Client-side only<br/>✅ Leading + trailing             |
 | **LiveView**  | `phx-debounce="300"`<br/>Server events only         | ✅ Client-side handling<br/>✅ Non-phx events<br/>✅ Stable timers               |
 | **React**     | No built-in support                                 | ✅ Declarative events<br/>✅ No wrapper functions<br/>✅ Works with refs         |
 | **Vue**       | No built-in support                                 | ✅ Template-friendly<br/>✅ Consistent syntax<br/>✅ All event types             |
-| **Stimulus**  | Requires stimulus-use                               | ✅ Zero dependencies<br/>✅ 110 native events<br/>✅ Per-element timers          |
+| **Stimulus**  | Requires stimulus-use                               | ✅ Zero dependencies<br/>✅ 113+ events<br/>✅ Per-element timers                |
 
 ### Vanilla JavaScript
 
@@ -838,14 +858,18 @@ debounced.register(['input'], {wait: 100, leading: true})
 
 ### Properties
 
-| Property               | Type   | Description                                     |
-| ---------------------- | ------ | ----------------------------------------------- |
-| `defaultEventNames`    | Array  | All 86 delegatable events                       |
-| `defaultOptions`       | Object | `{ wait: 200, leading: false, trailing: true }` |
-| `registeredEvents`     | Object | Currently registered events with options        |
-| `registeredEventNames` | Array  | List of registered event names                  |
-| `prefix`               | String | Event name prefix (default: 'debounced')        |
-| `version`              | String | Library version                                 |
+| Property                       | Type   | Description                                        |
+| ------------------------------ | ------ | -------------------------------------------------- |
+| `defaultBubblingEventNames`    | Array  | All 80 naturally bubbling events                   |
+| `defaultCapturableEventNames`  | Array  | All 12 capturable non-bubbling events              |
+| `defaultDelegatableEventNames` | Array  | All 92 delegatable events (bubbling + capturable)  |
+| `defaultWindowEventNames`      | Array  | All 105 window events (including shared events)    |
+| `defaultEventNames`            | Array  | All 113 unique native events across all categories |
+| `defaultOptions`               | Object | `{ wait: 200, leading: false, trailing: true }`    |
+| `registeredEvents`             | Object | Currently registered events with options           |
+| `registeredEventNames`         | Array  | List of registered event names                     |
+| `prefix`                       | String | Event name prefix (default: 'debounced')           |
+| `version`                      | String | Library version                                    |
 
 ### Options
 
@@ -892,82 +916,100 @@ All debounced events are CustomEvents with this structure:
 
 ## Troubleshooting
 
-### Events Not Firing
+### Common Issues and Solutions
+
+**Problem: Events aren't firing**
 
 ```javascript
-// ❌ Wrong: listening to original event
+// ❌ Listening to original event instead of debounced
 element.addEventListener('input', handler)
 
-// ✅ Correct: listening to debounced event
+// ✅ Listen to the debounced version
 element.addEventListener('debounced:input', handler)
 
-// ✅ Also check: initialization was called
+// ✅ Make sure you initialized first
 debounced.initialize()
 ```
 
-### Custom Events Not Working
+**Problem: Custom events don't work**
 
 ```javascript
-// ❌ Wrong: custom event doesn't bubble
+// ❌ Custom event doesn't bubble (won't reach document listener)
 element.dispatchEvent(new CustomEvent('myEvent'))
 
-// ✅ Correct: custom event must bubble
+// ✅ Custom events must bubble for event delegation
 element.dispatchEvent(new CustomEvent('myEvent', {bubbles: true}))
 ```
 
-### Timing Issues
+**Problem: Events fire too slowly or quickly**
 
 ```javascript
 // Too slow? Reduce wait time
 debounced.register(['input'], {wait: 100})
 
-// Need immediate response? Use leading
-debounced.register(['click'], {leading: true})
+// Need immediate response? Use leading mode
+debounced.register(['click'], {leading: true, trailing: false})
+
+// Want both immediate + final? Use both modes
+debounced.register(['scroll'], {leading: true, trailing: true})
 ```
 
-## FAQ
+## Frequently Asked Questions
 
-### What events are supported by default?
+### Which events are supported?
 
-**110 total events** including:
+All major DOM events work with Debounced:
 
-- **86 document-delegated events** that work with event delegation (`click`, `input`, `keydown`, `mousemove`, etc.)
-- **32 window events** including window-only events (`storage`, `online`, `offline`, etc.)
-- **8 events with dual registration** that work on both window and document (`resize`, `scroll`, `load`, etc.)
+- **Standard events**: click, input, keydown, scroll, resize, focus, blur, etc.
+- **Mouse events**: mousemove, mouseenter, mouseleave, drag events
+- **Touch events**: touchstart, touchmove, touchend
+- **Window events**: storage, online, offline, devicemotion
+- **113+ total events** - Native DOM events plus any custom events - [see complete list](src/events.js)
 
-[View the complete list](src/events.js).
+### Can I change settings after initialization?
 
-### Can I register an event multiple times?
-
-Yes, re-registering completely replaces the previous configuration. This is useful for dynamically adjusting debounce behavior:
+Yes! Re-registering an event updates its configuration:
 
 ```javascript
-// Start with quick response for typing
-debounced.register(['input'], {wait: 100})
-
-// User enables "slow mode"
+// Start conservative
 debounced.register(['input'], {wait: 500})
 
-// Switch to instant feedback
-debounced.register(['input'], {wait: 50, leading: true})
+// Make it more responsive later
+debounced.register(['input'], {wait: 100, leading: true})
 ```
 
-**Note:** Any options not specified in re-registration will revert to defaults.
+**Note**: Unspecified options reset to defaults when re-registering.
 
-### What happens to pending timeouts when unregistering?
+### When should I use event.target vs event.detail.sourceEvent?
 
-Pending timeouts continue to fire even after unregistration. The timeout was already scheduled and will complete.
+**Use `event.target` for element properties** (most common):
 
-### Do I need to use event.detail.sourceEvent for everything?
+- `event.target.value` - input values
+- `event.target.checked` - checkbox state
+- `event.target.id` - element ID
 
-No! Since debounced events are dispatched on the same target element:
+**Use `event.detail.sourceEvent` for event-specific data**:
 
-- Use `event.target` directly for element properties (`.value`, `.checked`, etc.)
-- Use `event.detail.sourceEvent` only for original event-specific properties (`.key`, `.keyCode`, etc.)
+- `event.detail.sourceEvent.key` - keyboard key
+- `event.detail.sourceEvent.clientX` - mouse position
 
-### How is this different from a debounce utility?
+### How is this different from other debounce solutions?
 
-Instead of wrapping every handler with `debounce(handler, wait)`, you initialize once and use standard event listeners. This provides consistency across your entire application.
+Traditional debounce utilities require wrapping each handler:
+
+```javascript
+// Traditional approach - inconsistent across codebase
+element.addEventListener('input', debounce(handler, 300))
+button.addEventListener('click', debounce(clickHandler, 500))
+```
+
+Debounced provides universal consistency:
+
+```javascript
+// Debounced approach - consistent everywhere
+element.addEventListener('debounced:input', handler)
+button.addEventListener('debounced:click', clickHandler)
+```
 
 ## Contributing
 
@@ -983,11 +1025,28 @@ npm test
 
 ### Testing
 
-The test suite includes 147 automated tests covering all functionality across Chromium, Firefox, and WebKit, including:
+The test suite includes 204 automated tests covering all functionality across Chromium, Firefox, and WebKit, including:
 
 - Event registration modification after initialization
 - Re-registration with different options
 - Edge cases and error handling
+- Visual test page with real-time event monitoring
+
+#### Visual Testing
+
+Run the interactive visual test suite to see debouncing in action:
+
+```bash
+npm run test:visual  # Opens browser with visual test page
+```
+
+The visual test page features:
+
+- Real-time event counters showing native vs debounced events
+- Efficiency metrics (% reduction in events)
+- Visual grid displaying all 105+ DOM events with color-coded status
+- Interactive elements to test different event types
+- Automated test runner with progress tracking
 
 ### Releasing
 

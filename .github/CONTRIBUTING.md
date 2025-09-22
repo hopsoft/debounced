@@ -22,8 +22,8 @@ npm run test:ui    # Open Playwright UI for debugging
 ### Code Formatting
 
 ```bash
-npm run format       # Format code with Prettier
-npm run format:check # Check formatting without modifying files
+npm run format  # Format code with Prettier
+npm run lint    # Check formatting without modifying files
 ```
 
 ### Building
@@ -62,9 +62,9 @@ When you open a pull request, GitHub Actions will automatically:
 
 ### Test Coverage
 
-Our test suite includes 87 tests covering:
+Our test suite includes 204 tests covering:
 
-- All 66 native DOM events
+- All 113 unique native DOM events
 - Custom event registration
 - Leading/trailing debounce modes
 - Event delegation and bubbling

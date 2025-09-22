@@ -19,9 +19,8 @@ var __spreadValues = (a, b) => {
 var version_default = "1.0.2";
 
 // src/events.js
-var nativeDelegatableEvents = [
+var nativeBubblingEvents = [
   "DOMContentLoaded",
-  "abort",
   "animationcancel",
   "animationend",
   "animationiteration",
@@ -49,7 +48,6 @@ var nativeDelegatableEvents = [
   "durationchange",
   "emptied",
   "ended",
-  "error",
   "focusin",
   "focusout",
   "fullscreenchange",
@@ -58,10 +56,6 @@ var nativeDelegatableEvents = [
   "input",
   "keydown",
   "keyup",
-  "load",
-  "loadeddata",
-  "loadedmetadata",
-  "loadstart",
   "mousedown",
   "mousemove",
   "mouseout",
@@ -107,40 +101,56 @@ var nativeDelegatableEvents = [
   "waiting",
   "wheel"
 ];
-var nativeWindowEvents = [
-  "afterprint",
-  "appinstalled",
-  "beforeinstallprompt",
-  "beforeprint",
-  "beforeunload",
+var nativeCapturableEvents = [
+  "abort",
   "blur",
-  "devicemotion",
-  "deviceorientation",
-  "deviceorientationabsolute",
+  "error",
   "focus",
-  "gamepadconnected",
-  "gamepaddisconnected",
-  "hashchange",
-  "languagechange",
   "load",
-  "message",
-  "messageerror",
-  "offline",
-  "online",
-  "pagehide",
-  "pageshow",
-  "pageswap",
-  "popstate",
-  "rejectionhandled",
-  "resize",
-  "scroll",
-  "scrollsnapchange",
-  "scrollsnapchanging",
-  "storage",
-  "unhandledrejection",
-  "unload",
-  "visibilitychange"
+  "loadeddata",
+  "loadedmetadata",
+  "loadstart",
+  "mouseenter",
+  "mouseleave",
+  "pointerenter",
+  "pointerleave"
 ];
+var nativeDelegatableEvents = Array.from(/* @__PURE__ */ new Set([...nativeBubblingEvents, ...nativeCapturableEvents])).sort();
+var nativeWindowEvents = Array.from(
+  /* @__PURE__ */ new Set([
+    "afterprint",
+    "appinstalled",
+    "beforeinstallprompt",
+    "beforeprint",
+    "beforeunload",
+    "blur",
+    "devicemotion",
+    "deviceorientation",
+    "deviceorientationabsolute",
+    "error",
+    "focus",
+    "gamepadconnected",
+    "gamepaddisconnected",
+    "hashchange",
+    "languagechange",
+    "load",
+    "message",
+    "messageerror",
+    "offline",
+    "online",
+    "pagehide",
+    "pagereveal",
+    "pageshow",
+    "pageswap",
+    "popstate",
+    "rejectionhandled",
+    "resize",
+    "storage",
+    "unhandledrejection",
+    ...nativeBubblingEvents
+  ])
+).sort();
+var nativeEvents = Array.from(/* @__PURE__ */ new Set([...nativeDelegatableEvents, ...nativeWindowEvents])).sort();
 
 // src/index.js
 var prefix = "debounced";
@@ -150,13 +160,14 @@ var defaultOptions = {
   leading: false,
   // ... fire event on the leading edge of the timeout
   trailing: true
-  // .... fire event on the trailing edge of the timeout
+  // ... fire event on the trailing edge of the timeout
 };
 var registeredEvents = {};
 var windowRegistrations = {};
 var documentRegistrations = {};
 var timeouts = /* @__PURE__ */ new Map();
 var dispatchDebouncedEvent = (sourceEvent, type) => {
+  var _a;
   const { bubbles, cancelable, composed } = sourceEvent;
   const debouncedEvent = new CustomEvent("".concat(prefix, ":").concat(sourceEvent.type), {
     bubbles,
@@ -164,7 +175,7 @@ var dispatchDebouncedEvent = (sourceEvent, type) => {
     composed,
     detail: { sourceEvent, type }
   });
-  sourceEvent.target.dispatchEvent(debouncedEvent);
+  (_a = sourceEvent.target) == null ? void 0 : _a.dispatchEvent(debouncedEvent);
 };
 var buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = __spreadValues(__spreadValues({}, defaultOptions), options);
@@ -176,16 +187,17 @@ var buildDebounceEventHandler = (options = {}) => {
     elementTimeouts[event.type] = setTimeout(() => {
       if (trailing) dispatchDebouncedEvent(event, "trailing");
       delete elementTimeouts[event.type];
-      for (const _ in elementTimeouts) return;
+      if (Object.keys(elementTimeouts).length > 0) return;
       timeouts.delete(event.target);
     }, wait);
   };
 };
 var unregisterEvent = (name) => {
-  var _a;
-  const handler = (_a = registeredEvents[name]) == null ? void 0 : _a.handler;
+  const registration = registeredEvents[name];
+  if (!registration) return name;
+  const { handler, useCapture } = registration;
   if (documentRegistrations[name]) {
-    document.removeEventListener(name, handler);
+    document.removeEventListener(name, handler, useCapture || false);
     delete documentRegistrations[name];
   }
   if (windowRegistrations[name]) {
@@ -198,22 +210,19 @@ var unregisterEvent = (name) => {
 var registerEvent = (name, options = {}) => {
   unregisterEvent(name);
   options = __spreadValues(__spreadValues({}, defaultOptions), options);
+  options.useCapture || (options.useCapture = nativeCapturableEvents.includes(name));
   options.handler = buildDebounceEventHandler(options);
   registeredEvents[name] = options;
-  const isDelegatable = nativeDelegatableEvents.includes(name);
-  const isWindow = nativeWindowEvents.includes(name);
-  if (isDelegatable || isWindow) {
-    if (isDelegatable) {
-      document.addEventListener(name, options.handler);
-      documentRegistrations[name] = options;
-    }
-    if (isWindow) {
-      window.addEventListener(name, options.handler);
-      windowRegistrations[name] = options;
-    }
-  } else {
-    document.addEventListener(name, options.handler);
+  const isNativeDelegatableEvent = nativeDelegatableEvents.includes(name);
+  const isNativeWindowEvent = nativeWindowEvents.includes(name);
+  const isCustomEvent = !isNativeDelegatableEvent && !isNativeWindowEvent;
+  if (isNativeDelegatableEvent || isCustomEvent) {
+    document.addEventListener(name, options.handler, options.useCapture || false);
     documentRegistrations[name] = options;
+  }
+  if (isNativeWindowEvent || isCustomEvent) {
+    window.addEventListener(name, options.handler);
+    windowRegistrations[name] = options;
   }
   return { [name]: registeredEvents[name] };
 };
@@ -222,12 +231,9 @@ var unregister = (eventNames = []) => {
   return eventNames;
 };
 var register = (eventNames = [], options = {}) => {
-  if (!eventNames || eventNames.length === 0) eventNames = nativeDelegatableEvents;
+  if (!eventNames || eventNames.length === 0) eventNames = nativeEvents;
   eventNames.forEach((name) => registerEvent(name, options));
-  return eventNames.reduce((memo, name) => {
-    memo[name] = registeredEvents[name];
-    return memo;
-  }, {});
+  return Object.fromEntries(eventNames.map((name) => [name, registeredEvents[name]]));
 };
 var index_default = {
   initialize: register,
@@ -235,8 +241,20 @@ var index_default = {
   unregister,
   registerEvent,
   unregisterEvent,
-  get defaultEventNames() {
+  get defaultBubblingEventNames() {
+    return [...nativeBubblingEvents];
+  },
+  get defaultCapturableEventNames() {
+    return [...nativeCapturableEvents];
+  },
+  get defaultDelegatableEventNames() {
     return [...nativeDelegatableEvents];
+  },
+  get defaultWindowEventNames() {
+    return [...nativeWindowEvents];
+  },
+  get defaultEventNames() {
+    return [...nativeEvents];
   },
   get defaultOptions() {
     return __spreadValues({}, defaultOptions);
