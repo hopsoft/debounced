@@ -113,7 +113,8 @@ var nativeCapturableEvents = [
   "mouseenter",
   "mouseleave",
   "pointerenter",
-  "pointerleave"
+  "pointerleave",
+  "scroll"
 ];
 var nativeDelegatableEvents = Array.from(/* @__PURE__ */ new Set([...nativeBubblingEvents, ...nativeCapturableEvents])).sort();
 var nativeWindowEvents = Array.from(
@@ -181,14 +182,13 @@ var buildDebounceEventHandler = (options = {}) => {
   const { wait, leading, trailing } = __spreadValues(__spreadValues({}, defaultOptions), options);
   return (event) => {
     if (!timeouts.has(event.target)) timeouts.set(event.target, {});
-    const elementTimeouts = timeouts.get(event.target);
-    if (leading && !elementTimeouts[event.type]) setTimeout(() => dispatchDebouncedEvent(event, "leading"));
-    clearTimeout(elementTimeouts[event.type]);
-    elementTimeouts[event.type] = setTimeout(() => {
+    const targetTimeouts = timeouts.get(event.target);
+    if (leading && !targetTimeouts[event.type]) setTimeout(() => dispatchDebouncedEvent(event, "leading"));
+    clearTimeout(targetTimeouts[event.type]);
+    targetTimeouts[event.type] = setTimeout(() => {
       if (trailing) dispatchDebouncedEvent(event, "trailing");
-      delete elementTimeouts[event.type];
-      if (Object.keys(elementTimeouts).length > 0) return;
-      timeouts.delete(event.target);
+      delete targetTimeouts[event.type];
+      if (Object.keys(targetTimeouts).length === 0) timeouts.delete(event.target);
     }, wait);
   };
 };

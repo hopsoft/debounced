@@ -286,6 +286,136 @@
         <div data-testid="testMouse" class="flex justify-center items-center w-24 h-24 bg-gray-300">Mouse Area</div>
       </div>
 
+      <!-- Nested Scrollable Elements Test -->
+      <div class="mb-8">
+        <h3 class="mb-4 text-xl font-bold">Nested Scrollable Elements</h3>
+        <p class="mb-4 text-sm text-gray-600">
+          Test debounced scroll events on individually scrollable elements (resolves scroll delegation issues).
+        </p>
+
+        <div class="bg-white rounded-lg shadow p-4">
+          <div class="grid grid-cols-3 gap-4 mb-4 text-sm">
+            <div class="text-center">
+              <div class="font-semibold text-blue-600">Sidebar Scroll</div>
+              <div class="flex justify-center items-baseline gap-2">
+                <div>
+                  <span id="sidebarNativeCount" class="text-lg text-gray-600">0</span>
+                  <span class="text-xs text-gray-400">native</span>
+                </div>
+                <span class="text-gray-400">→</span>
+                <div>
+                  <span id="sidebarScrollCount" class="text-2xl font-bold text-blue-600">0</span>
+                  <span class="text-xs text-gray-500">debounced</span>
+                </div>
+              </div>
+              <div id="sidebarReduction" class="text-xs text-gray-500 mt-1">—</div>
+            </div>
+            <div class="text-center">
+              <div class="font-semibold text-green-600">Main Content Scroll</div>
+              <div class="flex justify-center items-baseline gap-2">
+                <div>
+                  <span id="mainNativeCount" class="text-lg text-gray-600">0</span>
+                  <span class="text-xs text-gray-400">native</span>
+                </div>
+                <span class="text-gray-400">→</span>
+                <div>
+                  <span id="mainScrollCount" class="text-2xl font-bold text-green-600">0</span>
+                  <span class="text-xs text-gray-500">debounced</span>
+                </div>
+              </div>
+              <div id="mainReduction" class="text-xs text-gray-500 mt-1">—</div>
+            </div>
+            <div class="text-center">
+              <div class="font-semibold text-purple-600">Page Scroll</div>
+              <div class="flex justify-center items-baseline gap-2">
+                <div>
+                  <span id="pageNativeCount" class="text-lg text-gray-600">0</span>
+                  <span class="text-xs text-gray-400">native</span>
+                </div>
+                <span class="text-gray-400">→</span>
+                <div>
+                  <span id="pageScrollCount" class="text-2xl font-bold text-purple-600">0</span>
+                  <span class="text-xs text-gray-500">debounced</span>
+                </div>
+              </div>
+              <div id="pageReduction" class="text-xs text-gray-500 mt-1">—</div>
+            </div>
+          </div>
+
+          <div class="flex h-64 border border-gray-300 rounded">
+            <!-- Sidebar -->
+            <div id="nestedSidebar" class="w-1/3 overflow-y-scroll bg-blue-50 p-4 border-r border-gray-300">
+              <h4 class="font-semibold text-blue-700 mb-2">Sidebar (Scroll Me)</h4>
+              <div class="space-y-2">
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 1</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 2</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 3</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 4</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 5</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 6</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 7</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 8</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 9</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 10</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 11</div>
+                <div class="p-2 bg-blue-100 rounded">Navigation Item 12</div>
+              </div>
+            </div>
+
+            <!-- Main Content -->
+            <div id="nestedMainContent" class="flex-1 overflow-y-scroll bg-green-50 p-4">
+              <h4 class="font-semibold text-green-700 mb-2">Main Content (Scroll Me Too)</h4>
+              <div class="space-y-3">
+                <div class="p-3 bg-green-100 rounded">
+                  <h5 class="font-medium">Article 1</h5>
+                  <p class="text-sm text-gray-600">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.
+                  </p>
+                </div>
+                <div class="p-3 bg-green-100 rounded">
+                  <h5 class="font-medium">Article 2</h5>
+                  <p class="text-sm text-gray-600">
+                    Ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation.
+                  </p>
+                </div>
+                <div class="p-3 bg-green-100 rounded">
+                  <h5 class="font-medium">Article 3</h5>
+                  <p class="text-sm text-gray-600">
+                    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore.
+                  </p>
+                </div>
+                <div class="p-3 bg-green-100 rounded">
+                  <h5 class="font-medium">Article 4</h5>
+                  <p class="text-sm text-gray-600">
+                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia.
+                  </p>
+                </div>
+                <div class="p-3 bg-green-100 rounded">
+                  <h5 class="font-medium">Article 5</h5>
+                  <p class="text-sm text-gray-600">
+                    Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium.
+                  </p>
+                </div>
+                <div class="p-3 bg-green-100 rounded">
+                  <h5 class="font-medium">Article 6</h5>
+                  <p class="text-sm text-gray-600">
+                    Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 p-3 bg-gray-50 rounded">
+            <div class="text-xs text-gray-600">
+              <strong>Instructions:</strong> Scroll within the sidebar and main content areas above. Each should fire
+              independent debounced scroll events. You can also scroll the entire page to test page-level scroll events.
+              Each scrollable area maintains its own debounce timing.
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Add this just before the closing </div> of the container -->
       <div class="mt-8">
         <h3 class="mb-4 text-xl font-semibold text-gray-700">Scroll Test Area</h3>
@@ -385,6 +515,67 @@
 
       // Keep old fireEvent name as alias for compatibility
       const fireEvent = triggerRealEvent
+
+      // Test nested scrollable elements
+      const testNestedScrollableElements = async () => {
+        const testResults = getByTestId(document.body, 'testResults')
+        const sidebar = document.getElementById('nestedSidebar')
+        const mainContent = document.getElementById('nestedMainContent')
+
+        // Reset counts if they exist
+        if (window.nestedScrollCounts) {
+          window.nestedScrollCounts.sidebar = {native: 0, debounced: 0}
+          window.nestedScrollCounts.main = {native: 0, debounced: 0}
+          window.nestedScrollCounts.page = {native: 0, debounced: 0}
+        }
+
+        // Wait a bit for counts to reset
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        // Test sidebar scrolling
+        for (let i = 0; i < 10; i++) {
+          sidebar.scrollTop = i * 5
+          await new Promise(resolve => setTimeout(resolve, 5))
+        }
+
+        // Wait for debounce
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        // Test main content scrolling
+        for (let i = 0; i < 10; i++) {
+          mainContent.scrollTop = i * 5
+          await new Promise(resolve => setTimeout(resolve, 5))
+        }
+
+        // Wait for debounce
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        // Test page scrolling
+        for (let i = 0; i < 10; i++) {
+          window.scrollTo(0, i * 5)
+          await new Promise(resolve => setTimeout(resolve, 5))
+        }
+
+        // Wait for debounce
+        await new Promise(resolve => setTimeout(resolve, 100))
+
+        const counts = window.nestedScrollCounts
+        const passed =
+          counts.sidebar.native >= 5 &&
+          counts.sidebar.debounced === 1 &&
+          counts.main.native >= 5 &&
+          counts.main.debounced === 1 &&
+          counts.page.native >= 5 &&
+          counts.page.debounced === 1
+
+        const message = passed
+          ? `Sidebar: ${counts.sidebar.native}→${counts.sidebar.debounced}, Main: ${counts.main.native}→${counts.main.debounced}, Page: ${counts.page.native}→${counts.page.debounced}`
+          : `Failed - Sidebar: ${counts.sidebar.native}→${counts.sidebar.debounced}, Main: ${counts.main.native}→${counts.main.debounced}, Page: ${counts.page.native}→${counts.page.debounced}`
+
+        addTestResult(testResults, 'nested-scroll', passed, message)
+
+        return {passed, message}
+      }
 
       const testEvent = async (testArea, testResults, eventName, fireEventFn) => {
         console.log(`Testing ${eventName} event...`)
@@ -832,7 +1023,7 @@
           summaryHeader.className = 'sticky top-0 p-4 mb-4 bg-gray-200 rounded'
           summaryHeader.innerHTML = `
           <h3 class="mb-2 text-xl font-bold">Test Summary</h3>
-          <p>Total Tests: <span id="totalTests">${tests.length}</span></p>
+          <p>Total Tests: <span id="totalTests">${tests.length + 1}</span></p>
           <p id="passedTestsP" class="hidden text-green-600">Passed Tests: <span id="passedTests">0</span></p>
           <p id="failedTestsP" class="hidden text-red-600">Failed Tests: <span id="failedTests">0</span></p>
         `
@@ -874,8 +1065,23 @@
             getByTestId(document.body, 'progressText').textContent = `${Math.round(progress)}%`
           }
 
+          // Test nested scrollable elements
+          console.log('Testing nested scrollable elements...')
+          const nestedScrollTest = await testNestedScrollableElements()
+
+          // Add nested scroll test to the summary
+          if (nestedScrollTest.passed) {
+            passedTests++
+            updateTestCounts(true)
+          } else {
+            failedTests++
+            updateTestCounts(false)
+          }
+
           // Final summary
-          console.log(`Tests complete! Passed: ${passedTests}/${tests.length}, Failed: ${failedTests}/${tests.length}`)
+          console.log(
+            `Tests complete! Passed: ${passedTests}/${tests.length + 1}, Failed: ${failedTests}/${tests.length + 1}`
+          )
           console.log(`Efficiency: Native events: ${totalNativeEvents}, Debounced events: ${totalDebouncedEvents}`)
         } catch (error) {
           console.error('Error in runTests:', error)
@@ -1035,6 +1241,7 @@
       // Modify the window load event listener
       window.addEventListener('load', () => {
         setupPersistentEventListeners()
+        setupNestedScrollCounters()
         debounced.initialize()
         captureInitialStates() // Capture initial states when the page loads
         // Setup global tracking after debounced is initialized
@@ -1082,6 +1289,85 @@
         })
       }
 
+      // Setup nested scroll counters
+      const setupNestedScrollCounters = () => {
+        const sidebarCounter = document.getElementById('sidebarScrollCount')
+        const sidebarReduction = document.getElementById('sidebarReduction')
+        const mainCounter = document.getElementById('mainScrollCount')
+        const mainReduction = document.getElementById('mainReduction')
+        const pageCounter = document.getElementById('pageScrollCount')
+        const pageReduction = document.getElementById('pageReduction')
+
+        const sidebar = document.getElementById('nestedSidebar')
+        const mainContent = document.getElementById('nestedMainContent')
+
+        // Track native and debounced counts separately
+        const counts = {
+          sidebar: {native: 0, debounced: 0},
+          main: {native: 0, debounced: 0},
+          page: {native: 0, debounced: 0},
+        }
+
+        const updateDisplay = (area, counter, reduction) => {
+          const data = counts[area]
+          counter.textContent = `${data.native} → ${data.debounced}`
+
+          if (data.native > 0) {
+            const percent = Math.round((1 - data.debounced / data.native) * 100)
+            reduction.textContent = `(${percent}% reduction)`
+            reduction.className = percent >= 50 ? 'text-green-600' : 'text-yellow-600'
+          }
+        }
+
+        if (sidebar && sidebarCounter) {
+          // Native scroll events
+          sidebar.addEventListener('scroll', () => {
+            counts.sidebar.native++
+            updateDisplay('sidebar', sidebarCounter, sidebarReduction)
+          })
+
+          // Debounced scroll events
+          sidebar.addEventListener('debounced:scroll', () => {
+            counts.sidebar.debounced++
+            updateDisplay('sidebar', sidebarCounter, sidebarReduction)
+            console.log('Sidebar debounced scroll event fired')
+          })
+        }
+
+        if (mainContent && mainCounter) {
+          // Native scroll events
+          mainContent.addEventListener('scroll', () => {
+            counts.main.native++
+            updateDisplay('main', mainCounter, mainReduction)
+          })
+
+          // Debounced scroll events
+          mainContent.addEventListener('debounced:scroll', () => {
+            counts.main.debounced++
+            updateDisplay('main', mainCounter, mainReduction)
+            console.log('Main content debounced scroll event fired')
+          })
+        }
+
+        if (pageCounter) {
+          // Native scroll events
+          window.addEventListener('scroll', () => {
+            counts.page.native++
+            updateDisplay('page', pageCounter, pageReduction)
+          })
+
+          // Debounced scroll events
+          window.addEventListener('debounced:scroll', () => {
+            counts.page.debounced++
+            updateDisplay('page', pageCounter, pageReduction)
+            console.log('Page debounced scroll event fired')
+          })
+        }
+
+        // Store counts globally for test access
+        window.nestedScrollCounts = counts
+      }
+
       // Modify the existing code at the bottom of the file:
 
       // Remove this line if it exists:
@@ -1090,6 +1376,7 @@
       // Add this instead:
       window.addEventListener('load', () => {
         setupPersistentEventListeners()
+        setupNestedScrollCounters()
         debounced.initialize()
       })
     </script>

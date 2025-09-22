@@ -49,26 +49,25 @@ const buildDebounceEventHandler = (options = {}) => {
   const {wait, leading, trailing} = {...defaultOptions, ...options}
   return event => {
     if (!timeouts.has(event.target)) timeouts.set(event.target, {})
-    const elementTimeouts = timeouts.get(event.target)
+    const targetTimeouts = timeouts.get(event.target)
 
     // NOTE: Both leading and trailing debounced events are executed on the next tick of the event loop
     //       This allows the sourceEvent and its handlers to complete before the debounced event is dispatched
 
     // dispatch leading debounced event
-    if (leading && !elementTimeouts[event.type]) setTimeout(() => dispatchDebouncedEvent(event, 'leading'))
+    if (leading && !targetTimeouts[event.type]) setTimeout(() => dispatchDebouncedEvent(event, 'leading'))
 
-    clearTimeout(elementTimeouts[event.type]) // reset timeout
+    clearTimeout(targetTimeouts[event.type]) // reset timeout
 
     // NOTE: setTimeout returns a positive integer
     // SEE: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout#return_value
-    elementTimeouts[event.type] = setTimeout(() => {
+    targetTimeouts[event.type] = setTimeout(() => {
       // dispatch trailing debounced event
       if (trailing) dispatchDebouncedEvent(event, 'trailing')
 
       // cleanup
-      delete elementTimeouts[event.type]
-      if (Object.keys(elementTimeouts).length > 0) return // entries present
-      timeouts.delete(event.target) // entries empty
+      delete targetTimeouts[event.type]
+      if (Object.keys(targetTimeouts).length === 0) timeouts.delete(event.target)
     }, wait)
   }
 }

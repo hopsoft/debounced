@@ -274,6 +274,7 @@ test.describe('Capture Phase Events', () => {
         loadeddataInCapturable: window.debounced.defaultCapturableEventNames.includes('loadeddata'),
         loadedmetadataInCapturable: window.debounced.defaultCapturableEventNames.includes('loadedmetadata'),
         loadstartInCapturable: window.debounced.defaultCapturableEventNames.includes('loadstart'),
+        scrollInCapturable: window.debounced.defaultCapturableEventNames.includes('scroll'),
       }
     })
 
@@ -284,7 +285,7 @@ test.describe('Capture Phase Events', () => {
     assert.ok(result.hasDefaultEventNames, 'Should have defaultEventNames getter')
 
     assert.ok(result.bubblingCount > 50, 'Should have many bubbling events')
-    assert.strictEqual(result.capturableCount, 12, 'Should have 12 capturable events')
+    assert.strictEqual(result.capturableCount, 13, 'Should have 13 capturable events (including scroll)')
     assert.ok(result.delegatableIsUnion, 'Delegatable should be union of bubbling and capturable')
 
     assert.ok(result.clickInBubbling, 'Click should be in bubbling events')
@@ -295,6 +296,7 @@ test.describe('Capture Phase Events', () => {
     assert.ok(result.loadeddataInCapturable, 'Loadeddata should be in capturable events')
     assert.ok(result.loadedmetadataInCapturable, 'Loadedmetadata should be in capturable events')
     assert.ok(result.loadstartInCapturable, 'Loadstart should be in capturable events')
+    assert.ok(result.scrollInCapturable, 'Scroll should be in capturable events (for nested elements)')
   })
 
   test('verify capture phase registration', async ({page}) => {

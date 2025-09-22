@@ -499,8 +499,8 @@ test.describe('Comprehensive Native Events Coverage', () => {
 
     // Verify comprehensive coverage
     assert.ok(coverage.bubblingCount > 70, 'Should have 70+ bubbling events')
-    assert.strictEqual(coverage.capturableCount, 12, 'Should have 12 capturable events')
-    assert.strictEqual(coverage.delegatableCount, 92, 'Should have 92 delegatable events')
+    assert.strictEqual(coverage.capturableCount, 13, 'Should have 13 capturable events (including scroll)')
+    assert.strictEqual(coverage.delegatableCount, 92, 'Should have 92 delegatable events (scroll is in both)')
     assert.ok(coverage.windowCount > 100, 'Should have 100+ window events')
     assert.strictEqual(coverage.totalUnique, 113, 'Should have 113 total unique events')
 

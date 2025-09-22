@@ -99,6 +99,7 @@ export const nativeCapturableEvents = [
   'mouseleave',
   'pointerenter',
   'pointerleave',
+  'scroll',
 ]
 
 // Combination of all delegatable events (bubbling + capturable)

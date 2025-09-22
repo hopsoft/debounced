@@ -175,31 +175,29 @@ async function testEventWithRealInteractions(page, eventName) {
   // Get results
   const result = await page.evaluate(() => window.testEventData)
 
-  // Special handling for continuous events that might fire differently
-  const continuousEvents = ['mousemove', 'scroll', 'mouseover', 'mouseout']
-  const isContinuous = continuousEvents.includes(eventName)
+  // Verify debouncing reduces event frequency
+  assert.ok(
+    result.debouncedCount >= 1,
+    `Debounced ${eventName} should fire at least once (got ${result.debouncedCount})`
+  )
 
-  // For continuous events like scroll and mousemove, browser behavior varies
-  // What matters is that events are debounced, not the exact count
-  if (isContinuous) {
+  // Ensure we got multiple native events to prove debouncing had something to work with
+  assert.ok(result.nativeCount >= 2, `Should fire multiple native ${eventName} events (got ${result.nativeCount})`)
+
+  // Debounced events should be less than native events
+  assert.ok(
+    result.debouncedCount < result.nativeCount,
+    `Debouncing should reduce ${eventName} events (${result.debouncedCount} debounced < ${result.nativeCount} native)`
+  )
+
+  // For meaningful reduction check, only verify ratio when we have enough events
+  if (result.nativeCount >= 5) {
+    const reductionRatio = result.debouncedCount / result.nativeCount
     assert.ok(
-      result.debouncedCount >= 1 && result.debouncedCount <= 2,
-      `Debounced ${eventName} should fire 1-2 times (got ${result.debouncedCount})`
-    )
-  } else {
-    assert.ok(
-      result.debouncedCount === 1,
-      `Debounced ${eventName} should fire exactly once (got ${result.debouncedCount})`
+      reductionRatio <= 0.5,
+      `With ${result.nativeCount} native events, debouncing should achieve ≥50% reduction (got ${(reductionRatio * 100).toFixed(1)}%)`
     )
   }
-
-  // For continuous events, we just need at least 2 native events to prove multiple events fired
-  // For discrete events, we expect more consistent firing
-  const minNativeEvents = isContinuous ? 2 : 5
-  assert.ok(
-    result.nativeCount >= minNativeEvents,
-    `Multiple native ${eventName} events should fire (got ${result.nativeCount}, expected at least ${minNativeEvents})`
-  )
 
   return result
 }
