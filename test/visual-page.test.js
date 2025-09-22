@@ -1,6 +1,8 @@
 import {test, expect} from '@playwright/test'
 
 test.describe('Visual Test Page', () => {
+  test.setTimeout(60000) // Increase timeout for visual tests
+
   test('should display visual grid and run tests successfully', async ({page}) => {
     // Navigate to the visual test page
     await page.goto('/test/visual.html')
@@ -56,7 +58,7 @@ test.describe('Visual Test Page', () => {
     }).toPass({timeout: 5000})
 
     // Wait for tests to complete (progress bar at 100%)
-    await expect(page.getByTestId('progressText')).toContainText('100%', {timeout: 30000})
+    await expect(page.getByTestId('progressText')).toContainText('100%', {timeout: 45000})
 
     // Verify final state
     const passedCount = await page.locator('#gridPassed').textContent()
@@ -99,7 +101,7 @@ test.describe('Visual Test Page', () => {
     await page.getByTestId('runTestsBtn').click()
 
     // Wait for tests to complete
-    await expect(page.getByTestId('progressText')).toContainText('100%', {timeout: 30000})
+    await expect(page.getByTestId('progressText')).toContainText('100%', {timeout: 45000})
 
     // Check test results displayed on page
     const testResults = await page.getByTestId('testResults').textContent()

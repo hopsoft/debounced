@@ -13,6 +13,7 @@ jobs:
   lint-and-format:
     runs-on: ubuntu-latest
     name: Lint and Format Check
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
@@ -31,13 +32,24 @@ jobs:
         run: npm run lint
   test:
     runs-on: ubuntu-latest
-    name: Test (Node ${{ matrix.node-version }})
+    name: Test (Node ${{ matrix.node-version }} - ${{ matrix.browser }})
+    timeout-minutes: 15
 
     strategy:
       fail-fast: false
+      max-parallel: 4
       matrix:
-        node-version: [22, 24]
-        browser: [chromium, firefox, webkit]
+        include:
+          # Test all browsers on LTS
+          - node-version: 22
+            browser: chromium
+          - node-version: 22
+            browser: firefox
+          - node-version: 22
+            browser: webkit
+          # Test only chromium on latest
+          - node-version: 24
+            browser: chromium
 
     steps:
       - name: Checkout code
@@ -55,6 +67,15 @@ jobs:
       - name: Build library
         run: npm run build
 
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ matrix.browser }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-${{ matrix.browser }}-
+            playwright-${{ runner.os }}-
+
       - name: Install Playwright
         run: npx playwright install --with-deps ${{ matrix.browser }}
 
@@ -62,7 +83,7 @@ jobs:
         run: npx playwright test --project=${{ matrix.browser }}
 
       - name: Upload test results
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.node-version }}-${{ matrix.browser }}
@@ -80,6 +101,7 @@ jobs:
   bundle-size:
     runs-on: ubuntu-latest
     name: Bundle Size Check
+    timeout-minutes: 10
 
     steps:
       - name: Checkout code
