@@ -753,4 +753,5 @@ The visual test page features:
 3. Create annotated tag: `git tag -a vX.X.X -m "Release vX.X.X"`
 4. Push commits and tag: `git push REMOTE_NAME main --follow-tags`
 5. Create GitHub release from the tag
-6. GitHub Actions automatically publishes to npm
+6. GitHub Actions automatically publishes to npm (requires NPM_TOKEN secret)
+   - Or manually publish: `npm publish --access public`
