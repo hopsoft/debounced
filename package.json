@@ -1,8 +1,8 @@
 {
   "name": "debounced",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Debounced versions of standard high frequency DOM events",
-  "main": "src/index.js",
+  "main": "dist/debounced.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hopsoft/debounced.git"
