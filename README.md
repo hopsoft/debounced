@@ -750,7 +750,7 @@ The visual test page features:
 
 1. Update version in `package.json` and `src/version.js`
 2. Run `npm run build` and commit changes
-3. Create tag: `git tag vX.X.X`
+3. Create annotated tag: `git tag -a vX.X.X -m "Release vX.X.X"`
 4. Push commits and tag: `git push REMOTE_NAME main --follow-tags`
 5. Create GitHub release from the tag
 6. GitHub Actions automatically publishes to npm
