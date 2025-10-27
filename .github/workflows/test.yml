@@ -57,7 +57,7 @@ jobs:
         run: npm run test
 
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: playwright-report-node-${{ matrix.node-version }}
@@ -65,7 +65,7 @@ jobs:
           retention-days: 30
 
       - name: Upload test results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: test-results-node-${{ matrix.node-version }}
