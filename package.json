@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0",
-    "esbuild": "^0.25.10",
+    "esbuild": "^0.27.0",
     "prettier": "^3.2.5",
     "sirv-cli": "^3.0.1"
   }
